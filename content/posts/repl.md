@@ -11,8 +11,6 @@ externalLink = ""
 series = []
 +++
 
-# Mature REPL for RayforceDB
-
 Just to warm up the current blog, I've decided to tell a little bit about the REPL implementation for RayforceDB. It's worth saying that using an old simple REPL with rlwrap is enough for most cases, but every mature project must have command history, coloring, and autocompletion. In this part, I'll talk about POSIX-compatible terminals. We'll address Windows support later. The main point was to avoid using any external libraries, so we'll use only POSIX functions.
 
 First of all, we need to turn the current terminal into raw mode and revert it back on exit. The starting point is to define a structure for the terminal state:
