@@ -1,4 +1,4 @@
-baseURL = "http://www.denko.com"
+baseURL = "http://singaraiona.github.io/blog"
 title = "Anton Kundenko"
 theme = "hugo-coder"
 languageCode = "en"
