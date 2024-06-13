@@ -1,5 +1,5 @@
 +++ 
-draft = true
+draft = false
 date = 2024-06-13T12:40:48+03:00
 title = "Initial"
 description = ""
