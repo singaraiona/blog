@@ -1,0 +1,8 @@
+<div class="asciinema">
+    <div id="asciicast-demo"></div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            AsciinemaPlayer.create('{{ .Get "src" }}', document.getElementById('asciicast-demo'));
+        });
+    </script>
+</div>

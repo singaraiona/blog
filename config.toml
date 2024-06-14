@@ -37,15 +37,13 @@ hideColorSchemeToggle = false
 # Series see also post count
 maxSeeAlsoItems = 5
 # Custom CSS
-customCSS = []
+customCSS = ["/css/asciinema-player.css", "/css/custom.css"]
 # Custom SCSS, file path is relative to Hugo's asset folder (default: {your project root}/assets)
 customSCSS = []
-
 # Custom JS
-customJS = []
-
-# Custom remote JS files
-customRemoteJS = []
+customJS = ["/js/asciinema-player.js"]
+# Custom remote JS
+customRemoteJS = [] # Custom remote JS files
 
 # If you want to use fathom(https://usefathom.com) for analytics, add this section
 # [params.fathomAnalytics]
