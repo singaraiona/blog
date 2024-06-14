@@ -1,8 +1,9 @@
 <div class="asciinema">
-    <div id="asciicast-demo"></div>
+    {{ $id := printf "asciicast-%s" (md5 (relURL ( .Get "src" ))) }}
+    <div id="{{ $id }}"></div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            AsciinemaPlayer.create('{{ .Get "src" }}', document.getElementById('asciicast-demo'));
+            AsciinemaPlayer.create('{{ .Get "src" }}', document.getElementById('{{ $id }}'));
         });
     </script>
 </div>

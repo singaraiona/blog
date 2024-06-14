@@ -117,6 +117,8 @@ nil_t term_destroy(term_p term)
 }
 ```
 
-Afterall, it increased entire binary size of RayforceDB by 10kb. But it's worth it. The terminal is now mature and can be used in production. The next step is to implement Windows support. I'll talk about it in the next part. Stay tuned!
+The (almost) final result:
 
 {{< asciinema src="/asciinema/repl.cast" >}}
+
+Afterall, it increased entire binary size of RayforceDB by 10kb. But it's worth it. The terminal is now mature and can be used in production. The next step is to implement Windows support. I'll talk about it in the next part. Stay tuned!
