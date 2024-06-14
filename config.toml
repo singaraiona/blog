@@ -38,7 +38,11 @@ hideColorSchemeToggle = false
 # Series see also post count
 maxSeeAlsoItems = 5
 # Custom CSS
-customCSS = ["/css/asciinema-player.css", "/css/custom.css"]
+customCSS = [
+    "/css/source-code-pro.css",
+    "/css/asciinema-player.css",
+    "/css/custom.css",
+]
 # Custom SCSS, file path is relative to Hugo's asset folder (default: {your project root}/assets)
 customSCSS = []
 # Custom JS
