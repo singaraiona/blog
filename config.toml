@@ -1,4 +1,5 @@
-baseURL = "http://singaraiona.github.io/blog"
+# baseURL = "https://singaraiona.github.io/blog"
+# baseURL = "https://localhost:1313/"
 title = "Anton Kundenko"
 theme = "hugo-coder"
 languageCode = "en"
