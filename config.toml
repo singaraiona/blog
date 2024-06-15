@@ -6,9 +6,9 @@ defaultContentLanguage = "en"
 paginate = 6
 enableEmoji = true
 
-# [services]
-# [services.disqus]
-# shortname = "singaraiona"
+[services]
+[services.disqus]
+shortname = "hetoku"
 
 [markup.highlight]
 noClasses = false
