@@ -1,4 +1,5 @@
 import React from "react";
+import { createRoot } from "react-dom/client";
 
 export default function AntonKundenkoSite() {
   const BG = "#001B14";
@@ -84,10 +85,10 @@ export default function AntonKundenkoSite() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <a href="#" className="text-sm uppercase" style={{ color: ACC }}>Anton Kundenko</a>
           <nav className="flex items-center gap-4">
-            {['Projects','Writing','Stack','Contact'].map(section => (
+            {['Projects', 'Writing', 'Stack', 'Contact'].map(section => (
               <a key={section} href={`#${section.toLowerCase()}`} className="text-sm" style={{ color: DIM }}
-                 onMouseEnter={e => (e.currentTarget.style.color = ACC)}
-                 onMouseLeave={e => (e.currentTarget.style.color = DIM)}>
+                onMouseEnter={e => (e.currentTarget.style.color = ACC)}
+                onMouseLeave={e => (e.currentTarget.style.color = DIM)}>
                 {section}
               </a>
             ))}
@@ -107,10 +108,10 @@ export default function AntonKundenkoSite() {
         <div className="mt-6 flex flex-wrap gap-2 typed" style={{ animationDelay: '0.8s' }}>
           {links.map((l) => (
             <a key={l.href} href={l.href}
-               className="px-4 py-1 rounded soft-border"
-               style={{ color: DIM, borderColor: BRD, backgroundColor: "transparent" }}
-               onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#01291F"; e.currentTarget.style.color = ACC; e.currentTarget.style.borderColor = ACC; }}
-               onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = DIM; e.currentTarget.style.borderColor = BRD; }}>
+              className="px-4 py-1 rounded soft-border"
+              style={{ color: DIM, borderColor: BRD, backgroundColor: "transparent" }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#01291F"; e.currentTarget.style.color = ACC; e.currentTarget.style.borderColor = ACC; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = DIM; e.currentTarget.style.borderColor = BRD; }}>
               {l.label}
             </a>
           ))}
@@ -176,3 +177,8 @@ export default function AntonKundenkoSite() {
     </main>
   );
 }
+
+// Render the app
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(<AntonKundenkoSite />);
