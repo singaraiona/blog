@@ -1,5 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import "./src/index.css";
 
 export default function AntonKundenkoSite() {
   const BG = "#001B14";
