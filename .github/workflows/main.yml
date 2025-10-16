@@ -24,9 +24,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
-      - run: npm ci || npm i
+      - run: npm install
       - run: npm run build
       # SPA fallback (ensures /404 works as index for client-side routing)
       - run: cp dist/index.html dist/404.html
