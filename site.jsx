@@ -12,7 +12,7 @@ export default function AntonKundenkoSite() {
   const projects = [
     { title: "ThePlatform", href: "https://theplatform.technology/", tagline: "K-inspired high-performance data processing platform", blurb: "Lazy evaluation engine. Declarative concurrent parallel idioms. PEG-like parsers with grammar out-of-the-box.", chips: ["Rust", "Join Calculus", "SIMD"] },
     { title: "RayforceDB", href: "https://rayforcedb.com/", tagline: "Tiny vector database engine in pure C with zero dependencies. Powered by a LISP-like language.", blurb: "Query language built for simplicity and respect for vectors.", chips: ["C", "RayFall", "SIMD"] },
-    { title: "AxlDB", href: "https://axl-db.com/", tagline: "Combine both worlds: recursive interpreter and nano VM with compiled lambdas. No need to choose.", blurb: "LISP-like familiar language with fused loops at runtime.", chips: ["C", "Micro VM", "SIMD"] },
+    { title: "AxlDB", href: "https://axl-db.com/", tagline: "Combine both worlds: recursive interpreter and nano VM with compiled lambdas. No need to choose.", blurb: "LISP-like familiar language with fused loops at runtime.", chips: ["C", "Static parser", "Nano VM", "SIMD"] },
   ];
 
   const links = [
