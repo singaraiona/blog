@@ -106,7 +106,7 @@ export default function AntonKundenkoSite() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <a href="#" className="text-sm uppercase" style={{ color: ACC }}>Anton Kundenko</a>
           <nav className="flex items-center gap-4">
-            {['Projects', 'Writing', 'Stack', 'Contact'].map(section => (
+            {['Projects', 'Stack', 'Contact'].map(section => (
               <a key={section} href={`#${section.toLowerCase()}`} className="text-sm nav-link" style={{ color: DIM }}>
                 {section}
               </a>
