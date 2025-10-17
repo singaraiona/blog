@@ -142,7 +142,7 @@ export default function AntonKundenkoSite() {
             <img
               src="/avatar.png"
               alt="Anton Kundenko"
-              className="w-40 h-40 lg:w-48 lg:h-48 rounded-xl object-cover"
+              className="w-40 lg:w-48 rounded-xl"
               style={{
                 borderColor: BRD,
                 boxShadow: `0 0 0 1px ${BRD} inset, 0 0 20px ${ACC}22`
