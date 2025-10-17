@@ -12,7 +12,7 @@ export default function AntonKundenkoSite() {
   const projects = [
     { title: "ThePlatform", href: "https://theplatform.technology/", tagline: "K-inspired high-performance data processing platform", blurb: "Lazy evaluation engine. Declarative concurrent parallel idioms. PEG-like parsers with grammar out-of-the-box.", chips: ["Rust", "Join Calculus", "SIMD"] },
     { title: "RayforceDB", href: "https://rayforcedb.com/", tagline: "Tiny vector database engine in pure C with zero dependencies. Powered by a LISP-like language.", blurb: "Query language built for simplicity and respect for vectors.", chips: ["C", "RayFall", "SIMD"] },
-    { title: "AxlDB", href: "https://axl-db.com/", tagline: "Micro vector database engine: combining both worlds - recursive interpreter and micro VM with compiled lambdas.", blurb: "LISP-like familiar language with fused loops at runtime.", chips: ["C", "Micro VM", "SIMD"] },
+    { title: "AxlDB", href: "https://axl-db.com/", tagline: "Combine both worlds: recursive eval and nano VM with compiled lambdas.", blurb: "LISP-like familiar language with fused loops at runtime.", chips: ["C", "Micro VM", "SIMD"] },
   ];
 
   const links = [
@@ -177,7 +177,6 @@ export default function AntonKundenkoSite() {
               { h: "Languages", p: "C as ground truth. K/k influence. Lisp and Rust in mind." },
               { h: "Data structures", p: "Vectors: that's all you need to build everything." },
               { h: "Memory", p: "No malloc, no GC, no overhead. Just mmap, madvise, huge pages, zero-copy paths." },
-              { h: "Tooling", p: "perf, flamegraphs, sanitizers, static builds." },
             ].map(c => (
               <div key={c.h} className="rounded-xl p-4 soft-border" style={{ borderColor: BRD, backgroundColor: "rgba(0,0,0,0.25)" }}>
                 <div className="glow" style={{ color: ACC }}>{c.h}</div>
