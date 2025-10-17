@@ -10,9 +10,9 @@ export default function AntonKundenkoSite() {
   const BRD = "#007A4B";
 
   const projects = [
-    { title: "ThePlatform", href: "https://theplatform.technology/", tagline: "K-inspired high-performance data processing platform", blurb: "Static dispatch parser. Vector pipelines. Zero-GC hot path. Built for speed and clarity.", chips: ["K-style", "SIMD", "C"] },
-    { title: "RayforceDB", href: "https://rayforcedb.com/", tagline: "Lisp-like vector database engine in C with zero dependencies", blurb: "Custom allocator. On-demand GC for mmapped slabs <32M. Query language built for vectors.", chips: ["Lisp VM", "Allocator", "MMap"] },
-    { title: "AXL-DB", href: "https://axl-db.com/", tagline: "Tiny vector database: SIMD, memory-mapped arrays, custom allocators", blurb: "Fused loops at runtime. Verb-wire ops (+,−,*,/). Swiss-style tables and fast joins.", chips: ["SIMD", "Open Addressing", "C"] },
+    { title: "ThePlatform", href: "https://theplatform.technology/", tagline: "K-inspired high-performance data processing platform", blurb: "Lazy evaluation engine. Declarative concurrent parallel idioms. PEG-like parsers with grammar out-of-the-box.", chips: ["Rust", "Join Calculus", "SIMD"] },
+    { title: "RayforceDB", href: "https://rayforcedb.com/", tagline: "Tiny vector database engine in pure C with zero dependencies. Powered by a LISP-like language.", blurb: "Query language built for simplicity and respect for vectors.", chips: ["C", "RayFall", "SIMD"] },
+    { title: "AxlDB", href: "https://axl-db.com/", tagline: "Micro vector database engine: combining both worlds - recursive interpreter and micro VM with compiled lambdas.", blurb: "LISP-like familiar language with fused loops at runtime.", chips: ["C", "Micro VM", "SIMD"] },
   ];
 
   const links = [
@@ -23,11 +23,10 @@ export default function AntonKundenkoSite() {
   ];
 
   const phrases = [
-    "building vector databases",
+    "building vector database engines",
     "designing allocators",
-    "analyzing SIMD loops",
-    "writing Lisp VMs",
-    "profiling hot paths",
+    "hand-crafting SIMD loops",
+    "writing micro VMs",
   ];
 
   function Typewriter({ items }) {
@@ -175,11 +174,9 @@ export default function AntonKundenkoSite() {
           <h2 className="text-2xl mb-4 glow" style={{ color: PRI }}>Core Stack</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { h: "Languages", p: "C as ground truth. K/k influence. Lisp VM." },
-              { h: "Data structures", p: "Columnar vectors, dicts, Swiss-table hashing, radix partitioning." },
-              { h: "Execution", p: "SIMD via compiler vectors. Fused map/reduce/scan." },
-              { h: "Memory", p: "Slab + buddy allocators. mmapped slabs with optional GC." },
-              { h: "IO & OS", p: "mmap, madvise, huge pages, zero-copy paths." },
+              { h: "Languages", p: "C as ground truth. K/k influence. Lisp and Rust in mind." },
+              { h: "Data structures", p: "Vectors: that's all you need to build everything." },
+              { h: "Memory", p: "No malloc, no GC, no overhead. Just mmap, madvise, huge pages, zero-copy paths." },
               { h: "Tooling", p: "perf, flamegraphs, sanitizers, static builds." },
             ].map(c => (
               <div key={c.h} className="rounded-xl p-4 soft-border" style={{ borderColor: BRD, backgroundColor: "rgba(0,0,0,0.25)" }}>
@@ -206,7 +203,7 @@ export default function AntonKundenkoSite() {
       </section>
 
       <footer className="py-6 text-center text-xs" style={{ color: ACC, boxShadow: `inset 0 1px 0 ${BRD}` }}>
-        © {new Date().getFullYear()} Anton Kundenko — K · Lisp VM · SIMD
+        © {new Date().getFullYear()} Anton Kundenko · Let's build suckless software.
       </footer>
     </main>
   );
