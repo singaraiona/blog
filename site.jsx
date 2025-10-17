@@ -79,7 +79,28 @@ export default function AntonKundenkoSite() {
         .soft-border { box-shadow: 0 0 0 1px ${BRD} inset; }
         @keyframes blink { 0%, 49% { opacity: 1 } 50%, 100% { opacity: 0 } }
         .cursor-blink { animation: blink 1s steps(2, start) infinite; }
-        a { transition: color .25s ease, background-color .25s ease, border-color .25s ease, box-shadow .25s ease; }
+        a { 
+          transition: all .3s ease; 
+          position: relative;
+        }
+        a:hover { 
+          transform: translateY(-1px);
+          text-shadow: 0 0 8px currentColor;
+        }
+        .nav-link:hover {
+          color: ${ACC} !important;
+          text-shadow: 0 0 12px ${ACC}44;
+        }
+        .project-link:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,255,156,0.2);
+        }
+        .contact-link:hover {
+          background-color: #01291F !important;
+          color: ${ACC} !important;
+          border-color: ${ACC} !important;
+          box-shadow: 0 0 8px ${ACC}22;
+        }
       `}</style>
 
       <header className="sticky top-0 bg-black/40" style={{ boxShadow: `inset 0 -1px 0 ${BRD}` }}>
@@ -87,9 +108,7 @@ export default function AntonKundenkoSite() {
           <a href="#" className="text-sm uppercase" style={{ color: ACC }}>Anton Kundenko</a>
           <nav className="flex items-center gap-4">
             {['Projects', 'Writing', 'Stack', 'Contact'].map(section => (
-              <a key={section} href={`#${section.toLowerCase()}`} className="text-sm" style={{ color: DIM }}
-                onMouseEnter={e => (e.currentTarget.style.color = ACC)}
-                onMouseLeave={e => (e.currentTarget.style.color = DIM)}>
+              <a key={section} href={`#${section.toLowerCase()}`} className="text-sm nav-link" style={{ color: DIM }}>
                 {section}
               </a>
             ))}
@@ -109,10 +128,8 @@ export default function AntonKundenkoSite() {
         <div className="mt-6 flex flex-wrap gap-2 typed" style={{ animationDelay: '0.8s' }}>
           {links.map((l) => (
             <a key={l.href} href={l.href}
-              className="px-4 py-1 rounded soft-border"
-              style={{ color: DIM, borderColor: BRD, backgroundColor: "transparent" }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#01291F"; e.currentTarget.style.color = ACC; e.currentTarget.style.borderColor = ACC; }}
-              onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = DIM; e.currentTarget.style.borderColor = BRD; }}>
+              className="px-4 py-1 rounded soft-border contact-link"
+              style={{ color: DIM, borderColor: BRD, backgroundColor: "transparent" }}>
               {l.label}
             </a>
           ))}
@@ -124,7 +141,7 @@ export default function AntonKundenkoSite() {
           <h2 className="text-2xl mb-6 glow" style={{ color: PRI }}>Projects</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map(p => (
-              <a key={p.title} href={p.href} className="rounded-xl p-4 soft-border" style={{ borderColor: BRD, backgroundColor: "rgba(0,0,0,0.25)" }}>
+              <a key={p.title} href={p.href} className="rounded-xl p-4 soft-border project-link" style={{ borderColor: BRD, backgroundColor: "rgba(0,0,0,0.25)" }}>
                 <h3 className="text-lg glow" style={{ color: ACC }}>{p.title}</h3>
                 <p className="text-sm" style={{ color: DIM }}>{p.tagline}</p>
                 <p className="text-xs mt-2" style={{ color: DIM }}>{p.blurb}</p>
@@ -164,7 +181,7 @@ export default function AntonKundenkoSite() {
           <p className="text-sm" style={{ color: DIM }}>Open to collaboration, consulting, and performance audits.</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {links.map(l => (
-              <a key={l.href} href={l.href} className="px-4 py-1 rounded soft-border" style={{ borderColor: BRD, color: DIM }}>
+              <a key={l.href} href={l.href} className="px-4 py-1 rounded soft-border contact-link" style={{ borderColor: BRD, color: DIM }}>
                 {l.label}
               </a>
             ))}
