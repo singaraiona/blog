@@ -117,22 +117,35 @@ export default function AntonKundenkoSite() {
       </header>
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-        <h1 className="text-4xl sm:text-5xl font-bold typed glow" style={{ color: PRI }}>Anton Kundenko</h1>
-        <p className="mt-4 max-w-3xl typed" style={{ animationDelay: '0.3s', color: DIM }}>
-          Systems engineer building vector databases and tools. Inspired by kdb+/k. Lisp-like VMs, SIMD fusion, Swiss-table hash maps, and allocator design.
-        </p>
-        <div className="typed" style={{ animationDelay: '0.5s' }}>
-          <Typewriter items={phrases} />
-        </div>
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+          <div className="flex-1">
+            <h1 className="text-4xl sm:text-5xl font-bold typed glow" style={{ color: PRI }}>Anton Kundenko</h1>
+            <p className="mt-4 max-w-3xl typed" style={{ animationDelay: '0.3s', color: DIM }}>
+              Systems engineer building vector databases and tools. Inspired by kdb+/k. Lisp-like VMs, SIMD fusion, Swiss-table hash maps, and allocator design.
+            </p>
+            <div className="typed" style={{ animationDelay: '0.5s' }}>
+              <Typewriter items={phrases} />
+            </div>
 
-        <div className="mt-6 flex flex-wrap gap-2 typed" style={{ animationDelay: '0.8s' }}>
-          {links.map((l) => (
-            <a key={l.href} href={l.href}
-              className="px-4 py-1 rounded soft-border contact-link"
-              style={{ color: DIM, borderColor: BRD, backgroundColor: "transparent" }}>
-              {l.label}
-            </a>
-          ))}
+            <div className="mt-6 flex flex-wrap gap-2 typed" style={{ animationDelay: '0.8s' }}>
+              {links.map((l) => (
+                <a key={l.href} href={l.href}
+                  className="px-4 py-1 rounded soft-border contact-link"
+                  style={{ color: DIM, borderColor: BRD, backgroundColor: "transparent" }}>
+                  {l.label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex-shrink-0">
+            <img
+              src="/avatar.png"
+              alt="Anton Kundenko"
+              className="w-48 h-48 lg:w-56 lg:h-56 rounded-full object-cover soft-border"
+              style={{ borderColor: BRD, boxShadow: `0 0 20px ${ACC}22` }}
+            />
+          </div>
         </div>
       </section>
 
