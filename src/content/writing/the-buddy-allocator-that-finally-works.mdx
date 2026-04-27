@@ -1,66 +1,21 @@
 ---
 title: the buddy allocator that finally works
-summary: three rewrites this year. the third one is the keeper. small allocations take a slab fast path; the rest fall through to a buddy.
+summary: a u64 bitmap, a mask, a count-trailing-zeroes. the smallest fitting order in two instructions.
 publishedAt: 2024-12-04
 tags: [rayforce, c, performance, allocator]
 ---
 
-The allocator went through three rewrites this year. The third one is the one I will keep.
+The allocator went through three rewrites this year. The trick that finally made it fast is two instructions long.
 
-The first version was a slab cache with a freelist per size class. It was fast on small allocations and terrible on the ones bigger than the largest slab; the fallback path was a `malloc` and that was the end of "no malloc in the runtime". Out.
-
-The second version was a single arena with a bump pointer and a single reset point per query. It was very fast on reads and unusable as soon as a query had any interleaved allocation lifetime. Out.
-
-The third version is a buddy allocator with a slab cache in front of it. Backed by fixed-size pools the application sizes at startup. No `malloc` outside startup. The interesting parts are the bitmap, the split, and the merge.
-
-**The bitmap.** `heap->avail` is a bit per order; bit `i` is set when there is at least one free block of order `i`. To find the smallest free block that fits a request, mask off everything below the requested order and take the lowest remaining bit:
+`heap->avail` is a `u64`. Bit `i` is set when there is at least one free block at order `i`. To find the smallest free block that fits a request of order `order`:
 
 ```c
 i = (AVAIL_MASK << order) & heap->avail;
-// ... if i != 0:
 i = __builtin_ctzll(i);
 ```
 
-That is the whole "find a block" path. No tree walk, no list scan; one mask, one count-trailing-zeroes. The freelist at order `i` is an intrusive doubly-linked list rooted in `heap->freelist[i]`; popping the head is a couple of pointer writes.
+That is the entire "find a block" path. The mask drops orders below the requested one. The count-trailing-zeroes pulls the smallest set bit out of what remains. No tree walk, no list scan, no priority queue; the bitmap is the priority queue, and the hardware does the priority extraction.
 
-**The split.** Once you have a block at order `i` that is too large for the request at order `order`, you carve off the upper half at each order on the way down and put the buddies back on the freelist:
+Everything else in the allocator exists to keep that bitmap honest. Freelists per order are intrusive doubly-linked lists; popping the head clears the bit when the list goes empty, allocating splits a larger block down to size and lights up bits along the way, freeing walks up coalescing with buddies and lights up the bit at the merged order. None of that is novel - it is textbook buddy. What is novel, for me, is that the entire find-a-block decision is a mask and a bit-count, and the slab cache I bolted on for small frequent allocations is a fast path in front of an already fast path.
 
-```c
-inline nil_t heap_split_block(heap_p heap, block_p block, i64_t block_order, i64_t order) {
-    block_p buddy;
-    while ((order--) > block_order) {
-        buddy = (block_p)((i64_t)block + BSIZEOF(order));
-        buddy->pool       = block->pool;
-        buddy->pool_order = block->pool_order;
-        heap_insert_block(heap, buddy, order);
-    }
-}
-```
-
-Three lines of arithmetic and a freelist insert per order. After `heap_split_block` returns, `block` is exactly the requested order and the leftover halves are linked back at every intermediate order.
-
-**The merge, on free.** This is the part that took me the most rewrites. On free, walk up the orders trying to coalesce with the buddy:
-
-```c
-for (;; order++) {
-    if (block->pool_order == order)
-        return heap_insert_block(heap, block, order);
-
-    buddy = BUDDYOF(block, order);
-    __builtin_prefetch(buddy, 0, 1);
-
-    if (buddy->used || buddy->order != order)
-        return heap_insert_block(heap, block, order);
-
-    heap_remove_block(heap, buddy, order);
-    block = (buddy < block) ? buddy : block;
-}
-```
-
-`BUDDYOF` is the classic XOR with the block size at that order. The prefetch hides the cache-miss latency on the buddy's metadata before the `used` / `order` check. If the buddy is also free and the same order, we pull it off its freelist and continue up; the canonical address of the merged block is the lower one of the pair, hence the swap on the last line. If we hit the pool root or a buddy we cannot merge with, we stop and insert the merged block at the current order.
-
-In front of all this, the slab cache is a per-order stack of small free blocks. Free pushes onto the stack instead of merging; alloc pops if non-empty. Only when the stack is empty does the request reach the bitmap-and-buddy path. The slab keeps recently-freed small blocks hot, and skipping the merge loop is most of the saved cycles.
-
-What took me three rewrites is not the data structure. It is the discipline of holding the allocator behind a single function pointer that everything in the runtime calls. Once that pointer was the only entry, swapping the implementation became a one-line change. Before that, six different parts of the kernel were calling six different allocators "for now", and "for now" had been six months.
-
-I do not enjoy writing allocators. They are the kind of code that is invisible when right and very visible when wrong.
+If I had figured out the bitmap on rewrite one I would not have needed rewrites two and three.
