@@ -1,0 +1,16 @@
+---
+title: writing down what i know
+summary: the experiment teidedb is built on. converting years of database-building intuition into a spec dense enough that an agent without my background can deliver the implementation.
+publishedAt: 2026-04-12
+tags: [teidedb, rayforce2, agents, methodology]
+---
+
+The thing I have been running for the last few months is an experiment in transcription. The premise: take eighteen years of database engineering - the parts that have stopped feeling like decisions and started feeling like reflexes - and write them down densely enough that an agent without my background can deliver the implementation.
+
+Most of what I know about how to build a query engine is not propositional. It is the shape my hands make when I sit down to write one. No malloc on the hot path. Morsels of 1024 elements, fixed. State lives between morsels, not inside kernels. Errors are out-of-band signals, never exceptions. Predicate pushdown before fusion, fusion before DCE. Until I had agents, I had no reason to write any of it down at the level required to enforce it.
+
+The experiment produces two artifacts. The `CLAUDE.md` per sub-project carries the durable reflexes and gets inherited into every task automatically. The `docs/plans/` directory carries one spec per project-specific decision - goal, context, architecture diagram, fallback rules, success criteria, two hundred to five hundred lines, mostly prose. The radix-partitioned join was a spec. The eight-pass optimiser was a spec. Datalog was a spec. Each of them began as a paragraph in my head and ended as a document I could hand to someone else.
+
+The agent executes the spec task-by-task. When the spec is dense enough, the result matches what I would have written by hand. When it is not, the agent gets stuck and surfaces the gap - which is exactly the part I did not know I knew. That gap joins the `CLAUDE.md` or the next spec, and the next iteration is denser. The agent is the test of whether the transcription is complete.
+
+I would not have shipped Teide on my own this fast. I would not have written down what I know without the agents asking.
