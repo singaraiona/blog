@@ -1,0 +1,54 @@
+---
+interface Props {
+  title: string;
+  href?: string;
+  rightLabel?: string;
+}
+
+const { title, href, rightLabel } = Astro.props;
+---
+
+<section class="section">
+  <header class="section-header">
+    <h2><span class="hash" aria-hidden="true">##</span> {title}</h2>
+    {href && (
+      <a class="more" href={href}>
+        {rightLabel ?? "see all"} <span aria-hidden="true">→</span>
+      </a>
+    )}
+  </header>
+  <div class="section-body">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section {
+    margin-top: 3rem;
+  }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+  }
+  h2 {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+  }
+  .hash {
+    color: var(--color-accent-dim);
+  }
+  .more {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--color-muted);
+  }
+  .more:hover {
+    color: var(--color-accent);
+  }
+</style>

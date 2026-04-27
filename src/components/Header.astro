@@ -1,0 +1,97 @@
+---
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+const nav = [
+  { label: "writing", href: "/writing" },
+  { label: "about", href: "/about" },
+  { label: "github", href: "https://github.com/singaraiona", external: true },
+];
+
+const isActive = (href: string) =>
+  href === "/" ? path === "/" : path === href || path.startsWith(href + "/");
+---
+
+<header class="site-header">
+  <a href="/" class="brand">anton.kundenko</a>
+  <nav aria-label="site">
+    <ul>
+      {nav.map(({ label, href, external }) => {
+        const active = !external && isActive(href);
+        return (
+          <li>
+            <a
+              href={href}
+              class:list={["nav-link", { active }]}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noopener noreferrer" : undefined}
+              aria-current={active ? "page" : undefined}
+            >
+              {label}
+              {external && <span class="ext" aria-hidden="true">↗</span>}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4rem 0 1.6rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .brand {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+  }
+  .brand:hover {
+    color: var(--color-accent);
+  }
+  nav ul {
+    display: flex;
+    gap: 1.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-link {
+    color: var(--color-muted);
+    font-size: 0.88rem;
+    position: relative;
+    padding-bottom: 2px;
+  }
+  .nav-link:hover {
+    color: var(--color-accent);
+  }
+  .nav-link.active {
+    color: var(--color-fg);
+  }
+  .nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 1px;
+    background: var(--color-accent);
+  }
+  .ext {
+    font-size: 0.72em;
+    margin-left: 0.18em;
+    opacity: 0.7;
+  }
+  @media (max-width: 480px) {
+    nav ul {
+      gap: 1rem;
+    }
+    .nav-link {
+      font-size: 0.84rem;
+    }
+  }
+</style>

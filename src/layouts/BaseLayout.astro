@@ -1,0 +1,107 @@
+---
+// Latin-only subsets keep the font footprint small
+import "@fontsource-variable/jetbrains-mono/wght.css";
+import "@fontsource-variable/inter/wght.css";
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  type?: "website" | "article";
+  publishedAt?: Date;
+  updatedAt?: Date;
+}
+
+const {
+  title,
+  description = "Anton Kundenko - systems engineer building vector databases. Inspired by kdb+/k. SIMD, allocators, micro VMs.",
+  ogImage,
+  noindex = false,
+  type = "website",
+  publishedAt,
+  updatedAt,
+} = Astro.props;
+
+const siteName = "anton kundenko";
+const fullTitle = title ? `${title} · anton kundenko` : "anton kundenko";
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const og = ogImage ?? new URL("/avatar.png", Astro.site).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:image" content={og} />
+    {publishedAt && (
+      <meta property="article:published_time" content={publishedAt.toISOString()} />
+    )}
+    {updatedAt && (
+      <meta property="article:modified_time" content={updatedAt.toISOString()} />
+    )}
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={og} />
+
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${siteName} - writing`}
+      href="/rss.xml"
+    />
+
+    <meta name="generator" content={Astro.generator} />
+    <ClientRouter />
+  </head>
+  <body>
+    <div class="page">
+      <Header />
+      <main class="page-main">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+    <style>
+      .page {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 1.5rem 1.5rem 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+      }
+      .page-main {
+        flex: 1;
+        padding: 2rem 0 4rem;
+      }
+      @media (min-width: 768px) {
+        .page {
+          padding: 2rem 2.5rem 0;
+        }
+        .page-main {
+          padding: 3rem 0 5rem;
+        }
+      }
+    </style>
+  </body>
+</html>

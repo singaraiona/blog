@@ -1,0 +1,297 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Section from "../components/Section.astro";
+
+const work = [
+  {
+    when: "2013 - present",
+    org: "Lynx Trading Technologies",
+    role: "principal systems engineer / architect",
+    desc:
+      "designed and built ThePlatform (columnar time-series + O language, 2016-), RayforceDB (SIMD-first analytical engine + Rayfall language, 2020-), TeideDB (SQL surface, 2024-), and Teidelum (open-source knowledge infrastructure, 2025-). replaced kdb+/q across hundreds of production instances powering market data, risk, and order-flow analytics - 7-figure annual savings.",
+  },
+  {
+    when: "2012 - 2013",
+    org: "Samsung Electronics R&D",
+    role: "lead engineer",
+    desc:
+      "led a team porting KVM to Samsung's ARM Cortex-A smart TV platform. integrated the hypervisor with TrustZone so untrusted workloads could run isolated from DRM, secure boot, and the TEE.",
+  },
+  {
+    when: "earlier",
+    org: "various",
+    role: "low-level systems engineering",
+    desc:
+      "low-latency infra, market-data pipelines, performance-critical components in C/C++. ask me directly for the longer version.",
+  },
+];
+
+type Talk = { when: string; venue: string; title: string; href: string };
+const speaking: Talk[] = [
+  // Anton: list talks/podcasts/publications here.
+  // { when: "2025", venue: "RustForge", title: "Fused loops for the rest of us", href: "#" },
+];
+---
+
+<BaseLayout
+  title="about"
+  description="Anton Kundenko - systems engineer specializing in vector databases, SIMD, and tiny VMs. Open to consulting and performance audits."
+>
+  <article class="about fade-up">
+    <header class="head">
+      <h1>about</h1>
+      <p class="lede">
+        I'm Anton. <strong>18+ years</strong> in performance-critical
+        systems, mostly designing original database engines and the
+        programming languages that drive them.
+      </p>
+      <p class="lede">
+        At <strong>Lynx Trading Technologies</strong> I created
+        <a href="https://theplatform.technology/" target="_blank" rel="noopener noreferrer">ThePlatform</a>
+        (columnar time-series, the <em>O</em> language) and
+        <a href="https://rayforcedb.com/" target="_blank" rel="noopener noreferrer">RayforceDB</a>
+        (SIMD-first analytical engine, the <em>Rayfall</em> language). Both
+        run across hundreds of production instances, replacing kdb+/q with
+        7-figure annual savings. Around the Rayforce core I've since
+        built <a href="https://teidedb.com" target="_blank" rel="noopener noreferrer">TeideDB</a>
+        (SQL surface, embedded analytics) and
+        <a href="https://lum.teidedb.com/" target="_blank" rel="noopener noreferrer">Teidelum</a>
+        (open-source knowledge infrastructure with MCP for AI agents).
+      </p>
+      <p class="lede">
+        Before that, at Samsung Electronics R&amp;D, I led a team porting KVM
+        to ARM Cortex-A smart TVs and integrating it with TrustZone - so
+        untrusted workloads could share the device with DRM and the secure
+        boot chain without breaking either.
+      </p>
+      <p class="lede">
+        Most of what I do is influenced by kdb+/k: a few primitives, a
+        column-major runtime, and the discipline to keep the surface tiny.
+        I think you can build almost anything on top of vectors if you're
+        willing to look hard enough.
+      </p>
+      <p class="lede">
+        I'm open to <strong>collaboration</strong>,
+        <strong>consulting</strong>, and <strong>performance audits</strong>
+        - especially anything that lives close to the metal.
+      </p>
+      <div class="cta">
+        <a class="btn" href="mailto:anton.kundenko@gmail.com">
+          anton.kundenko@gmail.com <span aria-hidden="true">↗</span>
+        </a>
+        <a class="btn ghost" href="/resume.pdf" download>
+          download cv (pdf)
+        </a>
+      </div>
+    </header>
+
+    <Section title="what I'm good at">
+      <ul class="bullets">
+        <li>
+          <strong>vector engines</strong> - column-major storage,
+          fused execution, simd-aware kernels.
+        </li>
+        <li>
+          <strong>allocators</strong> - arenas, slabs, mmap+madvise,
+          huge pages, zero-copy paths. no malloc, no GC.
+        </li>
+        <li>
+          <strong>tiny languages</strong> - lisp-like cores, recursive
+          interpreters, nano VMs with compiled lambdas.
+        </li>
+        <li>
+          <strong>parsers</strong> - PEG, hand-rolled recursive descent,
+          out-of-the-box grammar with measurable parse cost.
+        </li>
+        <li>
+          <strong>performance work</strong> - profile-guided rewrites,
+          measuring before changing, branch-free hot paths.
+        </li>
+      </ul>
+    </Section>
+
+    <Section title="experience">
+      <ol class="timeline">
+        {work.map((w) => (
+          <li>
+            <div class="when">{w.when}</div>
+            <div class="entry">
+              <div class="title">
+                <span class="role">{w.role}</span>
+                <span class="org">- {w.org}</span>
+              </div>
+              <p class="desc">{w.desc}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </Section>
+
+    {speaking.length > 0 && (
+      <Section title="talks &amp; writing elsewhere">
+        <ul class="bullets">
+          {speaking.map((s) => (
+            <li>
+              <span class="when-inline">{s.when}</span>
+              <a href={s.href} target="_blank" rel="noopener noreferrer">
+                {s.title}
+              </a>
+              <span class="org">- {s.venue}</span>
+            </li>
+          ))}
+        </ul>
+      </Section>
+    )}
+
+    <Section title="elsewhere">
+      <ul class="bullets links">
+        <li><a href="https://github.com/singaraiona" target="_blank" rel="noopener noreferrer">github / singaraiona</a></li>
+        <li><a href="https://www.linkedin.com/in/anton-kundenko-a22a3667/" target="_blank" rel="noopener noreferrer">linkedin</a></li>
+        <li><a href="https://www.reddit.com/user/het0ku/" target="_blank" rel="noopener noreferrer">reddit / het0ku</a></li>
+        <li><a href="mailto:anton.kundenko@gmail.com">anton.kundenko@gmail.com</a></li>
+        <li><a href="/rss.xml">rss</a></li>
+      </ul>
+    </Section>
+  </article>
+
+  <style>
+    .about {
+      max-width: 65ch;
+      margin: 0 auto;
+    }
+    .head {
+      margin-bottom: 1rem;
+    }
+    .head h1 {
+      font-family: var(--font-mono);
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 1rem;
+    }
+    .head h1::before {
+      content: "# ";
+      color: var(--color-accent-dim);
+    }
+    .lede {
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--color-fg);
+      margin: 0 0 1rem;
+    }
+    .lede strong {
+      color: var(--color-accent);
+      font-weight: 600;
+    }
+    .cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.4rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.95rem;
+      border: 1px solid var(--color-accent-dim);
+      border-radius: 6px;
+      color: var(--color-accent);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      transition: background 160ms ease, border-color 160ms ease;
+    }
+    .btn:hover {
+      background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+      border-color: var(--color-accent);
+    }
+    .btn.ghost {
+      color: var(--color-muted);
+      border-color: var(--color-border);
+    }
+    .btn.ghost:hover {
+      color: var(--color-fg);
+      border-color: var(--color-accent-dim);
+      background: transparent;
+    }
+    .bullets {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-family: var(--font-sans);
+    }
+    .bullets li {
+      position: relative;
+      padding-left: 1.4em;
+      margin: 0.6em 0;
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+    .bullets li::before {
+      content: "-";
+      position: absolute;
+      left: 0;
+      color: var(--color-accent-dim);
+    }
+    .bullets strong {
+      color: var(--color-fg);
+      font-weight: 600;
+    }
+    .timeline {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .timeline li {
+      display: grid;
+      grid-template-columns: 11rem 1fr;
+      gap: 1rem;
+    }
+    .timeline .when {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--color-muted);
+    }
+    .timeline .title {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+    }
+    .timeline .role {
+      color: var(--color-fg);
+      font-weight: 600;
+    }
+    .timeline .org {
+      color: var(--color-muted);
+    }
+    .timeline .desc {
+      font-family: var(--font-sans);
+      color: var(--color-muted);
+      font-size: 0.9rem;
+      margin: 0.3rem 0 0;
+      line-height: 1.55;
+    }
+    @media (max-width: 640px) {
+      .timeline li {
+        grid-template-columns: 1fr;
+      }
+    }
+    .links a {
+      color: var(--color-accent);
+    }
+    .links a:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--color-accent-dim);
+      text-underline-offset: 3px;
+    }
+    .when-inline {
+      font-family: var(--font-mono);
+      color: var(--color-muted);
+      font-size: 0.82rem;
+      margin-right: 0.6rem;
+    }
+  </style>
+</BaseLayout>

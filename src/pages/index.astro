@@ -1,0 +1,261 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Caret from "../components/Caret.astro";
+import Section from "../components/Section.astro";
+import PostCard from "../components/PostCard.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+
+const posts = (await getCollection("writing", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
+  .slice(0, 4);
+
+const projects = [
+  {
+    title: "RayforceDB",
+    href: "https://rayforcedb.com/",
+    tagline:
+      "SIMD-first columnar analytical database in pure C. <1MB binary, zero deps. Powered by Rayfall.",
+    blurb:
+      "Original Lisp-like array language for vectorized analytics. Sponsored by Lynx for production adoption.",
+    chips: ["C", "Rayfall", "SIMD"],
+  },
+  {
+    title: "ThePlatform",
+    href: "https://theplatform.technology/",
+    tagline:
+      "Columnar time-series database and real-time analytics stack with the O programming language.",
+    blurb:
+      "Vector language inspired by APL/k with first-class tables, async reagents, and join-calculus concurrency.",
+    chips: ["O", "Time-series", "Concurrency"],
+  },
+  {
+    title: "TeideDB",
+    href: "https://teidedb.com",
+    tagline:
+      "Analytical SQL engine and embedded analytics runtime over a vectorized in-process execution model.",
+    blurb:
+      "Modern SQL surface on top of the Rayforce ecosystem - same vectorized core, different language at the edge.",
+    chips: ["SQL", "Embedded", "Vectorized"],
+  },
+  {
+    title: "Teidelum",
+    href: "https://lum.teidedb.com/",
+    tagline:
+      "Open-source knowledge infrastructure built on the Teide columnar engine.",
+    blurb:
+      "Syncs work tools, indexes content, and serves data to AI agents via MCP and applications via REST.",
+    chips: ["MCP", "REST", "Knowledge"],
+  },
+  {
+    title: "AxlDB",
+    href: "https://axl-db.com/",
+    tagline:
+      "Ultra-compact (<1MB core) zero-dependency vector database for deterministic-latency workloads.",
+    blurb: "HFT, edge analytics, embedded ARM/x86. Recursive interpreter + nano VM.",
+    chips: ["C", "Nano VM", "Embedded"],
+  },
+  {
+    title: "hyperbridge",
+    href: "https://github.com/singaraiona/hyperbridge",
+    tagline: "Open-source bridge layer for the Rayforce ecosystem.",
+    blurb: "Public on GitHub.",
+    chips: ["Open source", "GitHub"],
+  },
+];
+
+const links = [
+  { label: "github", href: "https://github.com/singaraiona" },
+  {
+    label: "linkedin",
+    href: "https://www.linkedin.com/in/anton-kundenko-a22a3667/",
+  },
+  { label: "reddit", href: "https://www.reddit.com/user/het0ku/" },
+  { label: "email", href: "mailto:anton.kundenko@gmail.com" },
+];
+---
+
+<BaseLayout>
+  <section class="hero fade-up">
+    <div class="hero-text">
+      <h1 class="name">
+        anton.kundenko<Caret />
+      </h1>
+      <p class="lede">
+        principal systems engineer · architect of high-performance database
+        systems · programming language creator.
+        <span class="muted">
+          18+ years building performance-critical infrastructure. creator of
+          two original databases and their languages, in production at lynx
+          trading - replacing kdb+/q.
+        </span>
+      </p>
+      <div class="links">
+        {links.map((l) => (
+          <a
+            href={l.href}
+            target={l.href.startsWith("http") ? "_blank" : undefined}
+            rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
+          >
+            {l.label}
+          </a>
+        ))}
+      </div>
+    </div>
+    <img
+      src="/avatar.png"
+      alt="Anton Kundenko"
+      width="120"
+      height="160"
+      class="avatar"
+      loading="eager"
+    />
+  </section>
+
+  <Section title="writing" href="/writing" rightLabel="all posts">
+    {posts.length === 0 ? (
+      <p class="empty">no posts yet - soon.</p>
+    ) : (
+      <div class="post-list">
+        {posts.map((post) => (
+          <PostCard
+            href={`/writing/${post.id}`}
+            title={post.data.title}
+            summary={post.data.summary}
+            publishedAt={post.data.publishedAt}
+            tags={post.data.tags}
+          />
+        ))}
+      </div>
+    )}
+  </Section>
+
+  <Section title="projects">
+    <div class="project-grid">
+      {projects.map((p) => <ProjectCard {...p} />)}
+    </div>
+  </Section>
+
+  <Section title="contact">
+    <p class="contact">
+      open to collaboration, consulting, and performance audits.
+    </p>
+    <p class="contact">
+      reach me at
+      <a href="mailto:anton.kundenko@gmail.com">anton.kundenko@gmail.com</a>
+      or on
+      <a href="https://github.com/singaraiona" target="_blank" rel="noopener noreferrer">github</a>.
+    </p>
+  </Section>
+
+  <style>
+    .hero {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2.5rem 0 1rem;
+    }
+    .hero-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .name {
+      font-family: var(--font-mono);
+      font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--color-fg);
+      margin: 0 0 0.7rem;
+      line-height: 1.05;
+    }
+    .lede {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: var(--color-fg);
+      max-width: 56ch;
+      margin: 0 0 1.2rem;
+    }
+    .lede .muted {
+      color: var(--color-muted);
+      display: block;
+      margin-top: 0.3rem;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 1.2rem;
+      font-size: 0.86rem;
+      color: var(--color-muted);
+    }
+    .links a {
+      color: var(--color-muted);
+      position: relative;
+    }
+    .links a::before {
+      content: "·";
+      color: var(--color-faint);
+      margin-right: 1.2rem;
+      position: absolute;
+      left: -1.4rem;
+    }
+    .links a:first-child::before {
+      content: "";
+    }
+    .links a:hover {
+      color: var(--color-accent);
+    }
+    .avatar {
+      width: 120px;
+      height: 160px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border);
+      object-fit: cover;
+      object-position: 50% 18%;
+      flex-shrink: 0;
+    }
+    @media (max-width: 640px) {
+      .hero {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
+      .avatar {
+        width: 84px;
+        height: 112px;
+      }
+    }
+    .post-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .empty {
+      color: var(--color-muted);
+      font-size: 0.88rem;
+    }
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 800px) {
+      .project-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .contact {
+      color: var(--color-muted);
+      font-size: 0.9rem;
+      margin: 0 0 0.7rem;
+    }
+    .contact a {
+      color: var(--color-accent);
+    }
+    .contact a:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--color-accent-dim);
+      text-underline-offset: 3px;
+    }
+  </style>
+</BaseLayout>

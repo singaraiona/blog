@@ -1,0 +1,107 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/PostCard.astro";
+
+const posts = (await getCollection("writing", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+);
+
+const grouped = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = post.data.publishedAt.getUTCFullYear();
+  if (!grouped.has(year)) grouped.set(year, []);
+  grouped.get(year)!.push(post);
+}
+const years = Array.from(grouped.keys()).sort((a, b) => b - a);
+---
+
+<BaseLayout
+  title="writing"
+  description="Essays and notes by Anton Kundenko on vector databases, SIMD, allocators, and tiny VMs."
+>
+  <header class="page-head fade-up">
+    <h1>writing</h1>
+    <p class="lede">
+      essays and notes on vector databases, simd, allocators, and tiny vms.
+    </p>
+    <p class="rss">
+      <a href="/rss.xml">subscribe via rss →</a>
+    </p>
+  </header>
+
+  {posts.length === 0 ? (
+    <p class="empty">no posts yet.</p>
+  ) : (
+    <div class="years">
+      {years.map((year) => (
+        <section class="year">
+          <h2>{year}</h2>
+          <div class="post-list">
+            {grouped.get(year)!.map((post) => (
+              <PostCard
+                href={`/writing/${post.id}`}
+                title={post.data.title}
+                summary={post.data.summary}
+                publishedAt={post.data.publishedAt}
+                tags={post.data.tags}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  )}
+
+  <style>
+    .page-head {
+      margin-bottom: 2.5rem;
+    }
+    .page-head h1 {
+      font-family: var(--font-mono);
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.4rem;
+    }
+    .page-head h1::before {
+      content: "# ";
+      color: var(--color-accent-dim);
+    }
+    .lede {
+      color: var(--color-muted);
+      margin: 0 0 1rem;
+      font-size: 0.92rem;
+    }
+    .rss a {
+      color: var(--color-accent);
+      font-size: 0.84rem;
+    }
+    .rss a:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--color-accent-dim);
+      text-underline-offset: 3px;
+    }
+    .years {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+    .year h2 {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--color-faint);
+      font-weight: 500;
+      margin: 0 0 0.4rem;
+      letter-spacing: 0.04em;
+    }
+    .post-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .empty {
+      color: var(--color-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</BaseLayout>

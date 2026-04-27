@@ -1,0 +1,100 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  summary: string;
+  publishedAt: Date;
+  tags?: string[];
+  compact?: boolean;
+}
+
+const { href, title, summary, publishedAt, tags = [], compact = false } =
+  Astro.props;
+
+const date = publishedAt.toISOString().slice(0, 10);
+---
+
+<a class:list={["post-card", { compact }]} href={href}>
+  <time class="date" datetime={publishedAt.toISOString()}>{date}</time>
+  <div class="body">
+    <div class="title">{title}</div>
+    {!compact && <div class="summary">{summary}</div>}
+    {!compact && tags.length > 0 && (
+      <div class="tags">{tags.map((t) => <span class="tag">#{t}</span>)}</div>
+    )}
+  </div>
+  <span class="arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .post-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-fg);
+  }
+  .post-card:last-child {
+    border-bottom: 0;
+  }
+  .date {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+  .title {
+    font-family: var(--font-mono);
+    font-size: 0.98rem;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    color: var(--color-muted);
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-top: 0.25rem;
+  }
+  .tags {
+    margin-top: 0.4rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .tag {
+    color: var(--color-accent-dim);
+    font-size: 0.78rem;
+  }
+  .arrow {
+    color: var(--color-faint);
+    font-family: var(--font-mono);
+    transition: transform 160ms ease, color 160ms ease;
+  }
+  .post-card:hover {
+    color: var(--color-fg);
+  }
+  .post-card:hover .title {
+    color: var(--color-accent);
+  }
+  .post-card:hover .arrow {
+    color: var(--color-accent);
+    transform: translateX(2px);
+  }
+  .compact .summary,
+  .compact .tags {
+    display: none;
+  }
+  @media (max-width: 540px) {
+    .post-card {
+      grid-template-columns: 1fr auto;
+    }
+    .date {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      font-size: 0.78rem;
+    }
+  }
+</style>
