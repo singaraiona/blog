@@ -5,47 +5,15 @@ publishedAt: 2021-05-26
 tags: [theplatform, o, parsing, concurrency]
 ---
 
-The point of the unification is that you can compose things across subsystem lines without paying for the boundary.
-
-Here is the entire HTTP request handler from `std/htreq.o`. Thirty-two lines including blank lines and comments:
+An HTTP-over-anything query handler in O is thirty-two lines because the parser, the socket, and the response builder all live under the same dispatch and there is no boundary between them.
 
 ```
-// Query platform over http
-//--
-
-OHOME: getenv[`OHOME];
-
-load OHOME,"http";
-load OHOME,"urllib";
-load OHOME,"serde";
-
-.ht.jsn: { ser[`json;x] };
-.ht.csv: { format["%";"," 0: x] };
-
-.ht.proc: {[sock;fmt;req]
-    mime: `$_ "/\\." vs fmt;
-    preq: eval parse req;
-    resp: $[`json~mime;.ht.jsn[preq];
-            `csv~mime; .ht.csv[preq];
-            '"invalid format: ",$mime
-    ];
-    .http.resp.ok[sock;mime;resp];
-};
-
-.ht.catch: {[sock;req;msg]
-    .http.resp.error[sock;500;req;msg];
-};
-
 .http.default.handle: {[sock;headers]
     url: "\\?" vs urllib.decode headers[`Url];
     .[.ht.proc;(sock;url[0];url[1]);{.ht.catch[sock;url[1];x`message]}];
 };
-
-.http.run[];
 ```
 
-This loads the `http` module, the `urllib` module, the `serde` module, and registers a handler that parses a URL, evaluates whatever query came in over it, serialises the result as JSON or CSV, and returns it. The `.http` and `.urllib` modules underneath are themselves O, with their own PEG grammars.
+That is the entry point from `std/htreq.o`. `urllib.decode` is from a PEG grammar in `std/urllib.o`. `.http.resp.ok` lives in `std/http.o`. The error path uses O's `.[fn;args;catch]` apply form. None of these pieces are imported across a foreign-function boundary; they are all just O lambdas calling other O lambdas.
 
-What is not in this code is the boundary. There is no parser library being called from a reaction handler. There is no socket abstraction being driven by an event loop being driven by an actor system. There is one runtime, and one dispatch, and three things that happen to be reactions, parsers, and sockets. The full stack underneath - `std/http.o` is two hundred lines, `std/urllib.o` is a hundred and forty - sits in the same world as this handler and uses the same primitives.
-
-That is the demo I should have written four years ago. It would have saved a lot of explaining.
+The full stack underneath - `std/http.o` is two hundred lines, `std/urllib.o` is a hundred and forty - sits in the same runtime as this handler and uses the same primitives. That is the demo I should have written four years ago. It would have saved a lot of explaining.

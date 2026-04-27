@@ -5,37 +5,10 @@ publishedAt: 2026-04-22
 tags: [rayforce2, datalog, query-language]
 ---
 
-A new query surface landed in rayforce2 this week. It is going to surprise people.
+Datalog landed in rayforce2 this week, and the only reason it is small to me is that the engine was already most of what Datalog needs. The payoff is a coincidence.
 
-Datalog. Rules and queries over EAV triples, evaluated semi-naively to fixpoint. The implementation underneath is substantial - `src/ops/datalog.c` is around four thousand lines - but the surface is the small part. It runs alongside the SQL-shaped query path, shares the optimiser, shares the storage. It is also, in my testing, the cleanest way to express graph queries we have ever had.
+The morsel pipeline, the DAG optimiser, and the CSR graph columns were each built for unrelated reasons - cancellation, predicate pushdown, graph traversal. Datalog walks in and finds them all useful. Semi-naive evaluation maps onto morsel-driven execution naturally because the working set of the previous iteration is exactly a morsel-shaped column. The DAG optimiser fuses rule bodies. CSR storage makes recursive joins fast. The whole thing comes out as one new opcode (`OP_ANTIJOIN` against the prior iteration's results) and a fixpoint loop around the DAG.
 
-Here is what it looks like to use:
+I planned the merge to get the language and the engine into one place. I did not plan for the place also being the right shape for a third paradigm. That is the kind of payoff you cannot promise in advance and cannot fake when it shows up. The honest thing to write down today is that I got lucky on the same architecture twice.
 
-```
-(set db (datoms))
-(set db (assert-fact db 1 'name 'Alice))
-(set db (assert-fact db 1 'dept 'Engineering))
-(set db (assert-fact db 2 'name 'Bob))
-(set db (assert-fact db 2 'dept 'Sales))
-
-(query db (find ?n ?d) (where (?e :name ?n) (?e :dept ?d)))
-```
-
-A rule binds a derived predicate to a body. Recursive rules close over their own conclusion:
-
-```
-(rule (reachable ?x ?y) (?x :edge ?y))
-(rule (reachable ?x ?z) (?x :edge ?y) (reachable ?y ?z))
-
-(query gdb (find ?x ?y) (where (reachable ?x ?y)))
-```
-
-That is straight from `examples/rfl/datalog.rfl`. Negation is `(not ...)`, wildcards are `_`, attribute names are keyword-shaped (`:name`, `:dept`, `:edge`), values can be symbols (`'Alice`) or numbers.
-
-This compiles into a DAG over the same morsel-driven pipeline as everything else. The fixpoint is a loop around the DAG. The semi-naive optimisation - re-deriving only from facts new in the previous iteration - is a single new opcode (`OP_ANTIJOIN` against the prior iteration's results). The total addition was small because the engine was already most of what Datalog needs.
-
-This is the moment that is going to make me look smart and is in fact a coincidence of the rewrite. The morsel pipeline, the DAG optimiser, the CSR graph columns - they were all built for different reasons. Datalog walks in and finds them all useful. Semi-naive evaluation maps onto morsel-driven execution naturally because the working set of the previous iteration is exactly a morsel-shaped column. The DAG optimiser fuses rule bodies. The CSR storage makes recursive joins fast.
-
-I did not see this coming when I planned the merge. I planned the merge to get the language and the engine into one place. The fact that the place also happens to be the right shape for a third paradigm is the kind of payoff you cannot promise in advance and cannot fake when it shows up.
-
-I am going to write more about Datalog and rayforce2 over the next few months. There is a good chance it ends up the way most users meet the system, even if it is not the way most users came in.
+The Rayfall surface is the obvious K-and-Lisp shape - `(rule ...)`, `(query db (find ?x ?y) (where ...))` - and lives next to one example in `examples/rfl/datalog.rfl`. The implementation behind it is around four thousand lines of C. Most of the work was already done.

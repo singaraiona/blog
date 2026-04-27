@@ -5,14 +5,12 @@ publishedAt: 2018-04-11
 tags: [theplatform, parsing, fix]
 ---
 
-This is a notebook entry. The work it talks about is internal at Lynx and the artifact does not live in the public repo, so what follows is from memory.
+A notebook entry. The work itself is internal at Lynx; the moment is not.
 
-For people who do not work in finance: FIX is the wire protocol every trading desk speaks. It is tag=value pairs separated by SOH, with a length prefix, a checksum, and, in practice, a venue-specific dialect for every nominal version of the spec. Library quality varies. Library cost is high. Library opinions about what your message looks like are non-negotiable, and the venues' opinions are also non-negotiable, and they disagree.
+I had been using a FIX library that could not parse the venue I cared about without a fork. The venue had a couple of extra repeating-group fields and a tag the spec said was a string but they treated as binary. Library opinions about what your message looks like are non-negotiable, and the venue's opinions are also non-negotiable, and they disagreed.
 
-The library I had been using could not parse the venue I cared about without a fork. It could parse a strict reading of FIX 4.4. The venue was not strict. The venue had two extra repeating-group fields and a tag that the spec said was a string but which they treated as binary. So I had to subclass, and the library did not support subclassing the lexer; you had to fork the schema build step, and the schema build step was a separate Maven project I had pretended did not exist.
+I gave up the moment I realised I was reading the library's README to figure out how to express what the venue had described in a paragraph.
 
-I gave up at the moment I realised I was reading the library's README to figure out how to express what the venue had described in a paragraph.
+That sentence is the post. The library's README was an interpretation layer between me and the spec, and the layer was costing me more than the spec was. Once I noticed, the rewrite into something where the grammar was a value next to the consumer was the only sensible move. The grammar changed when a tag changed; it compiled and deployed in the same file as the reaction.
 
-A grammar is a value. Once you accept that, you stop reaching for libraries that bake their grammar into compile time. You write the grammar inline next to the consumer. When the venue changes a tag, you change a line. The grammar is in the same file as the reaction that fires on the parsed message. It compiles together. It deploys together.
-
-I cannot link to the FIX work, but the public grammars in the platform's `std/` show the same idea on simpler protocols. `std/xml.o` is sixteen lines. `std/markdown.o` is forty-nine. They are short for the same reason the FIX rewrite was short: the grammar lives in the same world as the data and the kernel.
+I keep this entry because it is the moment the grammars-as-values argument stopped being abstract for me. Other posts spell out the design. This one is just the day I noticed.

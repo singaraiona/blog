@@ -5,32 +5,16 @@ publishedAt: 2020-03-17
 tags: [theplatform, concurrency, join-calculus]
 ---
 
-The first version of the reactor is in. It is small enough to fit in a screen, and that is the part I want to keep.
+The reactor is using the same kernels as the query engine, because they are the same operations.
 
-A reaction in O has two sides: a body and a binder list. Each binder names a value to take from a reagent (the join-calculus channel). The runtime picks reactions whose binders are simultaneously satisfied by values present on those reagents and fires them. Atomically. Once.
-
-The body is a normal O lambda. The binders are typed against reagent names, like a function signature:
+A reaction has a binder list and a body:
 
 ```
 react {[x:h1;y:h2] r:(eval x)+eval y; res:: r};
 ```
 
-That is straight from `kernel/o/tests/o.o`: bind `x` from reagent `h1`, bind `y` from reagent `h2`, fire the body when both have a value, evaluate them, sum the results, store into a third reagent.
+The runtime picks reactions whose binders are simultaneously satisfied by values present on the named reagents and fires them. Atomically. Once. That is join-calculus, and that is the externally visible promise: the body sees a tuple of values that are guaranteed-consistent at fire time, with no select-and-then-check on the user side.
 
-Three things this gets you that an actor mailbox does not.
+What I did not expect, when I wrote the first version, is that the patterns themselves want to be a column store. Each reagent is a column of pending values. A pattern match across N reagents is an inner join across N columns. The runtime does not build a special data structure for the reactor; it reuses the join kernels the query engine already has.
 
-## multi-channel matching is not your problem
-
-With a mailbox, you reach into a queue and pull the next message. To match across queues you serialise yourself through one of them. With join patterns, the runtime does the multi-way matching. The body sees a tuple of values that are guaranteed-consistent at fire time.
-
-## the body is where the consistency lives
-
-Reactions do not commit by sequence number. They commit by pattern match. If two reactions are eligible, the runtime serialises them, but the body never sees a partial state.
-
-## dead code is dead
-
-A reaction that has no pattern match is not running, not blocked, not consuming a thread. The reactor's cost scales with the active patterns, not with the population of declared reactions.
-
-Inside the implementation, the patterns share a join graph that is itself a small column store. The values live in arrays. Matching is a vector op. This is the place where the unification stops being aesthetic: the reactor is using the same kernels as the query engine, because they are the same operations.
-
-It took me six months to believe the trick worked. It took two days to write it once I did.
+That is why the reactor fits in a screen. I am not running an actor system inside a database; I am running a small query whose result is "which reactions can fire right now". It took me six months to believe the trick worked. It took two days to write it once I did.

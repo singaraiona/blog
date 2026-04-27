@@ -5,25 +5,16 @@ publishedAt: 2019-01-23
 tags: [theplatform, parsing, peg, design]
 ---
 
-When grammars are values, the language stops being two languages.
+When grammars are values, the language stops being two languages, and the action body of a parser rule is just a lambda in the host language.
 
-Most of my career, parsers have been a separate phase. You write a `.g4` file, you run a tool, you get a `Parser.java`, you import it from your real code. The grammar sits in another world. The values it produces are also in another world: an AST written by the tool, with names you did not pick, with quirks you cannot fix without forking the generator.
-
-In O, a grammar is a primitive that takes input and returns a parse value. It has the same shape as any other primitive in the runtime. A rule looks like:
+In O, a rule is one line:
 
 ```
 .md.h1: <- "#"# .md.sp (!.md.lf \.)* .md.lf/{`h1!.md.concat x};
 ```
 
-(That is from `std/markdown.o`. `<-` is the rule arrow. `#` is consume-without-emitting. The trailing `/{...}` is the action lambda - in this case, tag the result with the symbol `h1`.)
+`<-` is the rule arrow; the trailing `/{...}` is the action lambda. That action is a normal O lambda. It can call kernels, build columns, fire reactions - whatever the language can already do. A code-generated parser cannot do this, because the action body is interpreted by a generator that does not know what the host language is.
 
-What this gives me, that a code-generated parser does not:
+The other thing the value-shape gets you is composition without ceremony. A larger rule embeds a smaller one by name. A reaction can accept "the grammar to apply" the way a sort can accept "the comparator to use". A new venue ships a new tag at 09:30 UTC and the grammar is one line away from a redefinition.
 
-- I can compose grammars with the same operators I compose computations with. A larger rule embeds a smaller one by name, no import dance.
-- I can pass a grammar as an argument. A reaction can accept "the grammar to apply" the way a sort can accept "the comparator to use".
-- I can mutate a grammar at runtime. A new venue ships a new tag at 09:30 UTC; I redefine the rule, the next message parses against the new grammar.
-- The action body is a normal O lambda. It can call kernels, build columns, fire reactions - whatever the language can already do. ANTLR cannot do this; it does not know what an O expression is.
-
-This is the unification I keep talking about. It is not aesthetics. It is the thing that lets `std/xml.o` ship an entire XML reader in sixteen lines, and `std/markdown.o` a markdown parser in forty-nine. The grammar lives in the same world as the data it produces and the reaction that consumes it. There is no boundary to cross, so there is no friction to budget for.
-
-If you have ever owned a parser from a code generator, you know exactly what kind of friction I mean.
+If you have ever owned a parser from a code generator, you know exactly which friction I am describing the absence of.

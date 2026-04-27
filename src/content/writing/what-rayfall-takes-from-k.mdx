@@ -5,18 +5,10 @@ publishedAt: 2024-01-29
 tags: [rayforce, rayfall, kdb, design]
 ---
 
-A year in. Rayfall has a parser, an evaluator, a few hundred primitives. It is time to write down what it owes K and where it diverges.
-
-What it takes:
-
-- **Arity-classed primitives.** Every verb has a fixed arity. The dispatch knows what to do at one argument and at two and at three, and the table is arranged so that no call site has to branch on a type to find out.
-- **Vector-first evaluation.** Atoms are length-one vectors. There is no scalar code path. The hot loop is the same loop whether you have eight elements or eight million.
-- **Closed shape.** Every value is a typed column. There are no objects with hidden internal state. A result is a column. A table is a list of columns. A dictionary is a column of keys and a column of values.
-
-What it does not take:
-
-- **Glyph-only syntax.** K is famously cryptic by design. Rayfall is a Lisp. `(+ a b)` instead of `a+b`. I have nothing against the glyphs - they are beautiful - but the audience for a database I want people to actually use cannot be the same five hundred people who read kdb+ tracebacks for fun.
-- **Implicit dispatch by glyph repetition.** In K, `+/` and `+\` are reduce and scan. In Rayfall they are `(reduce +)` and `(scan +)`. Verbose. Worth it. Every reader of every line knows what is happening on first read, including me on Monday morning.
-- **Implicit assignment.** K leans on adverbs and quietness. Rayfall makes side effects explicit with `set` and `let`. I do not want to read code that depends on the parser knowing what I meant.
-
 K is right about the runtime. Rayfall is right about the surface for the people I am writing it for. Both can be true.
+
+The runtime in Rayfall is K's: arity-classed primitives, vector-first evaluation with no scalar code path, every value a typed column. Those are not surface choices; those are the bet about what makes a vector language fast and what gives the optimiser something to work with. I would not want to be the person who tries to talk me out of any of them.
+
+The surface is not K's. Rayfall is a Lisp - `(+ a b)`, not `a+b`; `(reduce +)`, not `+/`; `(set x ...)`, not implicit assignment by adjacency. The audience for a database I want people to actually use cannot be the same five hundred people who read kdb+ tracebacks for fun. The cost of the verbosity is one parenthesis pair per call site. The benefit is that every reader of every line knows what is happening on first read, including me on Monday morning.
+
+Both can be true. I have stopped feeling apologetic about either side.

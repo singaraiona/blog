@@ -1,23 +1,14 @@
 ---
 title: starting in c, again
-summary: a year and a half of thinking. today the first file landed. block.c, one hundred and twenty lines, no dependencies.
+summary: a year and a half of thinking. the database i want to ship lives in someone else's binary, so it has to be in c.
 publishedAt: 2022-04-12
 tags: [rayforce, c, design]
 ---
 
-A year and a half of thinking. Today I started.
+A year and a half of thinking. Today I started, in C.
 
-The first piece of code on disk is a tagged-union value type. A header byte for the tag, a union of a char, an int, a float, and a pointer-to-itself for the recursive case. That is it. No language yet. No allocator yet. Not even a column type yet. Just the seed of the value algebra everything else will sit on.
+The decision is C because the whole point of the next thing is that it embeds. The database I want to ship lives inside someone else's binary - a desk's analytics process, a partner's pipeline, a microcontroller in a vehicle - and that someone is not going to inherit a Cargo workspace and a tokio runtime to use my library. They are going to want a single static `.a`, a header, and a stable C ABI.
 
-I am writing it in C because the entire point is the size of the linked artifact and the complexity of the toolchain to build it. Rust would be more pleasant in a hundred small ways and would cost me both of those. The version of this database I want to ship lives in someone else's binary. It cannot drag a Cargo workspace and a tokio runtime with it. C is the thing every embedded host already knows how to link.
+Rust would be more pleasant in a hundred small ways. It would cost me the size of the linked artifact and the complexity of the toolchain to build it. ThePlatform is Rust and I am happy with that, but ThePlatform is a server. Servers can carry a runtime. Libraries cannot.
 
-The discipline I have set for myself is one I learned in ThePlatform but did not enforce hard enough there:
-
-- One allocator. The whole runtime gets memory through it. No `malloc` outside of process startup.
-- One thread, until forced otherwise. Single-threaded code is debuggable.
-- One file per major concept. No headers full of unrelated declarations.
-- No third-party dependencies. Not even for hashing. Not even for time.
-
-I do not yet know if this is too austere. The point of going austere now is to find out where it breaks, before I have a user to apologise to.
-
-The repo is private. It will probably stay private for a few years. I am writing this for myself.
+The repo is private and will probably stay private for a few years while the shape settles. I am writing this for myself.

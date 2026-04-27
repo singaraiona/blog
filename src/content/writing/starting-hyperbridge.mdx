@@ -5,18 +5,8 @@ publishedAt: 2021-11-17
 tags: [hyperbridge, rust, concurrency]
 ---
 
-The need came from theplatform: a place inside the Rust runtime where I had many producers and many consumers and wanted an async surface across both. crossbeam-channel has the MPMC unbounded channel but no async; tokio's mpsc has async but is single-consumer; flume is close on paper and worked on benches I did not believe. So I spent the weekend writing my own. Today I open-sourced it as its own crate, separate from theplatform, because the channel does not need to know what is using it and other Rust projects of mine end up wanting the same thing.
+crossbeam-channel covers MPMC unbounded but has no async surface. Tokio's `mpsc` is async but single-consumer. Flume sits in between and worked on benches I did not believe. The crate I needed for theplatform is the one nobody had written, so I wrote it.
 
-The crate is called hyperbridge. The README is two paragraphs and the benchmark file is in the initial commit. That is on purpose: I do not want to publish a channel implementation people have to take on faith. If you do not believe my numbers you can run them.
+Hyperbridge is what came out of the weekend. It is on crates.io as of today, version 0.1.0, with the benchmarks committed alongside the implementation - if you do not believe the numbers you can run them. Other Rust projects of mine ended up wanting the same gap closed, which is why it is its own crate and not a module inside theplatform: the channel does not need to know what is using it.
 
-The shape is the obvious one. A lock-free unbounded channel built around a linked list of fixed-size blocks. Each end of the channel is a `Cursor`: one `AtomicUsize` for the sequence index and one `AtomicPtr<Block<T>>` for the current block. Each block holds a fixed array of `Slot<T>`, with a `next` pointer the writer publishes when the block fills. MPSC and MPMC are the same data structure with different consumer paths. Async support comes through a small wrapper that exposes futures Sink and Stream. There are no third-party dependencies in the core; the futures support is behind a feature flag.
-
-What I am explicitly trying to avoid:
-
-- Hidden allocations in the hot path. Blocks are pooled and reused; allocation happens at block boundaries, not at every send.
-- Lock contention on the slow path. Spinning is fine; locking is not. The channel never takes a mutex.
-- Unsafe blocks without comments. There are unsafe blocks. They are commented one for one.
-
-Inspired by crossbeam's unbounded channel; not a reimplementation of it. The thing I want that crossbeam does not give me is the futures surface, and the path of least resistance for that turned out to be a separate crate rather than a fork.
-
-Today's commit log is short. README. Benches. Initial implementation. 0.1.0 is on crates.io. Let us see who finds it.
+The thing crossbeam does not give me, that I want, is the futures Sink/Stream surface. The path of least resistance for that turned out to be a separate crate rather than a fork. Inspired by crossbeam, not a reimplementation of it.

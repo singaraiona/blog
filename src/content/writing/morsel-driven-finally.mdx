@@ -5,18 +5,10 @@ publishedAt: 2026-03-12
 tags: [rayforce2, performance, execution]
 ---
 
-The first week of rayforce2 with the Teide execution model running underneath the Rayfall VM. I want to write down what changed in the kernels, and why I did not do this in rayforce.
+In rayforce, cancelling a long query was a sketchy thread-state machine. In rayforce2 it is a five-line check. The reason is morsels.
 
-A morsel is a slice of a column. In rayforce2 it is fixed at one thousand and twenty-four elements, chosen because it is the largest size that, on every machine I care about, fits all the working data of every primitive in L2. Every kernel takes morsels in and produces morsels out. There is no scalar fallback path. There is no "and the last partial morsel" path; the partial is its own morsel, it just has fewer elements.
+A morsel is a slice of a column - 1024 elements, fixed - and every kernel takes morsels in and produces morsels out. There is no scalar fallback path; the partial last morsel is just its own morsel with fewer elements. The pipeline is one chain of morsels long.
 
-Three things change.
+Once the state of a query lives between morsels rather than inside any single kernel call, cancelling the query stops being a problem. There is nothing in flight to unwind. The check `if (cancelled) return RAY_ERR_CANCELLED;` runs at every morsel boundary, the next morsel never gets requested, and the query is over. No thread state. No partial commits. No timer-vs-handler race.
 
-**The pipeline becomes fusable.** Two primitives that produce and consume the same morsel can be fused into one loop without materialising the intermediate. The query optimiser does this rewrite during DAG construction. The result is a hot loop that does both operations in registers; the morsel is stable in L1 across the fusion.
-
-**Cancellation becomes tractable.** A long query is a chain of morsels. Cancelling the query is "stop calling next-morsel". There is no inflight state that has to be unwound, because the state lives between morsels. Implementing query timeout went from a sketchy thread-state machine in rayforce to a five-line check in rayforce2.
-
-**Profiling is meaningful.** I can attribute time to morsels rather than to function calls. A primitive that is slow is slow because its morsel is slow. The flame graph is one level shallower and one level more honest.
-
-The reason I did not do this in rayforce is that rayforce had, by the time I knew it was the right answer, a hundred kernels that did not assume morsel boundaries. Rewriting them in place would have been a year of incremental breakage. Starting fresh with the rule baked in - no scalar path, no edge cases - took six weeks.
-
-I am not as good as I would like to be at predicting which decisions will look like this. The decisions whose absence is invisible at month one and unfixable at year three. I will keep writing them down when I see them in retrospect.
+Fusion and profiling fall out of the same shape (two kernels that produce and consume the same morsel can fuse into one loop in L1; flame graphs become honest because time attributes to morsels rather than function calls), but the cancellation gain is the one I had not predicted. It is the kind of decision whose absence is invisible at month one and unfixable at year three. Starting fresh with the rule baked in took six weeks. Retrofitting it into rayforce would have been a year.

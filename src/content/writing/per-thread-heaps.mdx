@@ -1,0 +1,38 @@
+---
+title: per-thread heaps, no mutex on the hot path
+summary: every task carries its own allocator. cross-thread frees never touch a lock.
+publishedAt: 2025-01-15
+tags: [rayforce, c, performance, allocator, concurrency]
+---
+
+The allocator is per-thread. Every task carries its own heap with its own freelists, slab cache, and free-order bitmap. The first line of every entry point is:
+
+```c
+heap_p heap = VM->heap;
+```
+
+`VM` is task-local. There is one allocator per task. Two tasks allocating concurrently never touch the same data structure, never wait on each other. The hot path - alloc, free, split, merge - has zero atomics and zero locks. `grep -nE 'mutex|spinlock|pthread' core/heap.c` returns nothing.
+
+The interesting case is cross-thread free: a block allocated on task A and freed on task B has to end up back on A's heap, not B's. One field per block carries the answer:
+
+```c
+block->heap_id = heap->id;   // stamped at alloc time
+```
+
+On free, if `block->heap_id != heap->id`, the block does not go through the buddy. It pushes onto the freeing task's `foreign_blocks` LIFO and returns:
+
+```c
+if (UNLIKELY(block->heap_id != heap->id)) {
+    block->next = heap->foreign_blocks;
+    heap->foreign_blocks = block;
+    return;
+}
+```
+
+That list is single-threaded - only the freeing task pushes to its own foreign list. The owning task drains those blocks back to its freelists when it next runs out of memory and looks for slack, by way of `heap_drain_pending()` and `heap_flush_foreign(heap)` on the slow path of `heap_alloc`.
+
+That is the entire cross-thread coordination. No CAS on alloc. No CAS on free. The only atomics in the file sit on a tiny `__heap_id_bitmap` used once at heap creation to hand out unique 16-bit ids.
+
+What this gets, that a global allocator with finer-grained locks does not, is a hot path whose instruction count is independent of how many tasks are running. A buddy split is a few writes; the bitmap update is one bit flip; the freelist push is two pointer writes. None of them depend on what any other task is doing.
+
+The cost is a little slack memory per task. It is the trade I would make every time.

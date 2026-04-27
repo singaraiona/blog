@@ -5,9 +5,7 @@ publishedAt: 2024-06-08
 tags: [theplatform, parsing, peg, dsl]
 ---
 
-A small audit of what is, today, embedded under `std/` as a first-class PEG grammar.
-
-I counted six files using the `<-` arrow:
+Six PEG grammars under `std/`, eight hundred and eighty-two lines:
 
 | file | lines | rules |
 |---|---:|---:|
@@ -18,28 +16,6 @@ I counted six files using the `<-` arrow:
 | `prolog.o` | 142 | 12 |
 | `sql.o` | 450 | 43 |
 
-That is eight hundred and eighty-two lines for six grammars. The smallest, `xml.o`, fits an entire XML reader in sixteen lines:
+That count is the receipt for the grammars-as-values design. The reason it fits is not that O is concise; it is concise, but not by that factor. The reason is that there is no boundary between the grammar, the reaction that fires on its output, and the kernel that runs the result. The grammar's action body and the surrounding application code are the same lambda surface; the runtime cost is the same kernel everyone else uses.
 
-```
-.xml.quotes: <- "\"" | "'";
-.xml.spaces: <- (\S*)#;
-.xml.keyend: <- "?>" | "/>" | ">" | "=";
-.xml.nident: <- [\W_]+;
-.xml.commnt: <- ("<!--" (!"-->" \.)* "-->")#;
-.xml.keyval: <- ((!.xml.keyend \.)+/{,/x}) "="# .xml.spaces .xml.quotes# ((!.xml.quotes \.)*/.xml.concat) .xml.quotes#/{...};
-.xml.attrbs: <- (.xml.spaces .xml.keyval .xml.spaces)*/{`attrs!.xml.concat x};
-.xml.pltext: <- (!"<" \.)+/{`text!.xml.concat x};
-.xml.prolog: <- "<?xml"# .xml.attrbs "?>"#/{`prolog!x};
-.xml.lngtag: <- "<"# .xml.nident .xml.attrbs ">"# .xml.contnt->children "</"# .xml.nident# ">"#/{...};
-.xml.inltag: <- "<"# .xml.nident .xml.attrbs "/>"#/{...};
-.xml.contnt: <- .xml.spaces (( .xml.commnt | .xml.inltag | .xml.lngtag | .xml.pltext) .xml.spaces)*;
-.xml.parsed: <- .xml.commnt* .xml.prolog? .xml.spaces .xml.contnt?;
-```
-
-Thirteen rules. A rule is `name: <- pattern;`. Pattern operators are conventional PEG plus a few O additions: `#` for skip, `\.` for any-byte, `+/{...}` for sequence-and-action, `->name` for capture binding. The action body inside `/{...}` is a normal O lambda; it gets the parsed children as its argument.
-
-The biggest, `sql.o`, is four hundred and fifty lines for forty-three rules. That includes selects, joins, where clauses, aggregates, and group-by, all compiling down to O verbs. The grammar is large because SQL is large; the runtime cost is the same kernel everyone else uses, because there is no separate query path.
-
-Eight hundred and eighty-two lines for six grammars is the kind of count that makes me worry I am cheating somewhere, so I checked: the line count is real (`wc -l std/{xml,markdown,lit,urllib,prolog,sql}.o`), the grammars are not stripped, and they parse the inputs they claim to. The reason it fits is not that O is concise - it is, but not by that factor. The reason is that there is no boundary between the grammar, the reaction that fires on its output, and the kernel that runs the result. They are the same dispatch.
-
-I will keep watching the count. If we add a seventh grammar and the average line count holds, that is the strongest argument for the design that I have.
+If we add a seventh grammar and the average line count holds, that is the strongest argument for the design I have.

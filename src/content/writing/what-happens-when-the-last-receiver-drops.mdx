@@ -5,20 +5,12 @@ publishedAt: 2022-01-31
 tags: [hyperbridge, rust, async]
 ---
 
-Two months of using hyperbridge inside theplatform; one bug class I had been ignoring is now closed.
+The visibility-store has to be last. That is the rule I did not have written down for the first version of hyperbridge, and that cost me three weeks.
 
-The bug class is "what is the channel supposed to do when an endpoint goes away while the other end still has work".
+A sender writes a slot in two parts: it puts the value into the slot, then it advances `tail.index` to publish that the slot is readable. If those happen in that order, a panic between them leaves the slot non-visible: the consumer never sees the index advance, the value is invisible, the channel is consistent. If the order is reversed - or if any other state-changing operation happens between the visibility store and the end of the function - a panic mid-call can leak a half-published value into the consumer's view.
 
-Concretely:
+The first version did the visibility store too early, because I wrote the function in the order the operations made sense to me, not in the order the channel needed them to be safe. The fix is one line of reordering and exactly the discipline that the store-release on `tail.index` is the last thing the function does.
 
-- The last receiver drops. Senders continue to push values. Those values pile up in a channel that no one will ever drain. Memory leak.
-- The last sender drops. Receivers wait forever on a value that will never come. Deadlock.
-- A sender drops mid-transaction. Half-published values become visible. Logical corruption.
+The textbook bugs - last-receiver-drops leaks, last-sender-drops deadlocks - I had also been ignoring; they got their fix today too, by counting senders and receivers and transitioning to `Err(Closed)` when either count goes to zero. They were textbook. The visibility-ordering one was not.
 
-The first two are textbook. I wrote them in a notebook before I started the crate and forgot to implement them. The fix is one struct field per side - the channel knows how many senders and receivers are alive - and a check on each operation. When the last one of either side drops, the channel transitions to closed; the other side gets `Err(Closed)` on every subsequent call. No more silent leaks.
-
-The third was subtler. A sender that crashes mid-call leaves the channel in whatever state the atomic was in when the panic landed. The fix is to do the visibility-store last, after every other operation has succeeded; if a panic happens earlier, the value was never visible. This sounds obvious. It is, in the second-edition writeup. It was not obvious when I wrote the first edition.
-
-The other change today is a small one: senders and receivers each carry a handle to the opposite end. `sender.receiver()` returns a fresh cloned receiver. This is a convenience; it lets a piece of code that was given a sender create a fan-out structure without threading the receiver through.
-
-Three weeks of staring at this bug class. One day of fixing it.
+Three weeks of staring at this bug class. One day of fixing it, once I had the rule.

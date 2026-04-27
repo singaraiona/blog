@@ -1,38 +1,20 @@
 ---
 title: the first monad
-summary: six months in, looking back at the function that opened the language. it allocated. the discipline came later.
+summary: the kernel signature on day one is the kernel signature today, even though the discipline around it changed.
 publishedAt: 2023-08-19
 tags: [rayforce, rayfall, c, design]
 ---
 
-Six months in. The repo's first language primitive landed back in February, the day after the initial commit. The commit message reads, plainly:
-
-```
-introduce first monad
-```
-
-Looking at it now I want to write down two things. What it actually was, and what it told me I still had to learn.
-
-The primitive is `til`. K calls it `!N`. APL calls it `iota`. It takes an integer N and returns the vector `0, 1, 2, ..., N-1`. It is the smallest interesting kernel I could think of, the one that produces structure rather than collapses it, and so the one that forces the runtime to answer "where does a result live".
-
-The first version answered that question with `malloc`:
+The first language primitive landed in February. The commit message read "introduce first monad". The function was `til`:
 
 ```c
-g0 til(i64 count)
-{
+g0 til(i64 count) {
     i64 *vec = (i64 *)malloc(count * sizeof(i64));
-    for (i64 i = 0; i < count; i++)
-    {
-        vec[i] = i;
-    }
+    for (i64 i = 0; i < count; i++) vec[i] = i;
     return new_vector_i64(vec, count);
 }
 ```
 
-Twelve lines including the include. It returns a `g0`, the opaque object handle the rest of the runtime knows how to pass around. It allocates. The caller does not own the buffer. The kernel does.
+It calls `malloc`, which six months later it does not, and which six months later it will not. The buddy allocator and the slab cache I wrote since are in front of it. The discipline arrived after the kernel did, not before it.
 
-That is the shape I had on day one and it is not the shape the kernel has now. Today's `til` does not call `malloc` directly; the buddy allocator is in front of it, the slab cache is in front of that, and the memory it returns is recycled across queries instead of asked of the OS. But on day one the discipline was not there. I knew it was coming and I wrote the easy version anyway, because the easy version is what teaches you which discipline you need.
-
-What this kernel did do, and what has held since, is the dispatch shape. A monad has its own table. The function signature is a single argument in, a single result out, both `g0`. The parser maps a token to a slot in the table. There is no function-pointer-of-everything. There is one slot per arity per glyph, and the caller branches once on the arity it already knows.
-
-Six months on, the table has more rows. The kernels that fill it have learned to stop calling `malloc`. The shape `til` set on day one is the shape every monad still uses.
+What did arrive on day one and has not changed is the signature: `g0` in, `g0` out, one slot per `(glyph, arity)` in the dispatch table, the caller branches once on arity it already knows. Every monad I have added since has fit that shape. The discipline I had to learn; the shape I got right by writing it down before the runtime existed to argue with me.

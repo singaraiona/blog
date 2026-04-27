@@ -5,11 +5,9 @@ publishedAt: 2016-11-08
 tags: [theplatform, o, design]
 ---
 
-The language has a name now: O. It will probably keep changing.
+The language has a name now: O. The first thing to settle is not the syntax. It is the dispatch rule.
 
-The first thing I needed to settle was the dispatch rule. Not the syntax. The syntax follows. In O, every primitive will declare its arity and its judgment - what it accepts, what it returns, whether it is value-shaped or stream-shaped. The runtime indexes everything by that. There is no separate function-call machinery; the call is just an arity look-up plus an apply.
-
-On paper today this is a notebook sketch, not real code. The sketch:
+Every primitive will declare its arity. The runtime indexes implementations by that arity. The call site does not branch on type, does not unwrap a vtable, does not look up a generic; it does a one-step apply through the row keyed by `(glyph, arity)`. On paper today, with no code yet:
 
 ```
 glyph  arity  judgment
@@ -19,8 +17,6 @@ glyph  arity  judgment
 .      triad  conditional
 ```
 
-Same glyph, different rows in the table. Reading it like that took the mystery out of the K family for me. There is nothing magical about overloaded operators when every operator is overloaded by construction. The cost is exactly one branch on arity.
+Same glyph, different rows in the table. Reading the K family that way took the mystery out of it for me. There is nothing magical about overloaded operators when every operator is overloaded by construction. The cost is exactly one branch on arity.
 
-What is new in O - or new to me, anyway - is letting that table extend past the value world. A grammar rule is a primitive. A reaction (the join-calculus kind) is a primitive. They sit in the same dispatch, in the same table, and their arities classify them the same way. A monadic reaction is a stream consumer. A dyadic reaction is a join. A grammar rule is just a parser primitive whose arity is its expected token count.
-
-I do not yet know if this unification is real or if it is a coincidence I will pay for later. The next few months are about pushing on it until something either hardens or breaks. Today, on paper, the three subsystems use the same word for the same thing. That has to count for something.
+The decision today is to commit to this before any syntax. Whether the runtime can extend the same dispatch into reactions and grammars, which is what I want, is next year's work. Today, the table.

@@ -5,20 +5,10 @@ publishedAt: 2025-10-31
 tags: [rayforce, axl, design]
 ---
 
-AxlDB is on ice as of today. Four months of commits, a hundred and seventy-nine of them. I am happy with the experiment and I am closing the lid.
+The negative result of the AxlDB experiment is the result that mattered: there is no other shape.
 
-What it gave me, concretely:
+I started AxlDB four months ago to find out which parts of rayforce were the database and which were the engine. The hidden hope was that, freed from the database, the engine would settle into a shape rayforce could not have. It did not. AxlDB grew the same primitive surface, the same memory model, the same dispatch shape - more or less by inevitability. The places I tried to deviate, I deviated back. The shape is right; there is no other shape; rayforce can serve the embedded niche I imagined for AxlDB with a smaller compile-time configuration.
 
-- A clear view of the engine-vs-database boundary in rayforce. Several internal seams that used to feel arbitrary now have names. Two of them are getting refactored into rayforce next week.
-- A handful of primitives that AxlDB had and rayforce did not, that turn out to be useful inside the database too. They are being ported.
-- One execution-model variant - a strict morsel pipeline with no scalar fallback - that performed well enough on AxlDB that I am going to try it in rayforce. This is the one that matters most.
-- A reminder that I am not, in fact, going to ship two analytics products. I do not have the energy for that, and the world does not need them. The embedded niche I imagined for AxlDB is real, but rayforce can serve it with a smaller compile-time configuration.
+What the experiment did pay off in is the seams I now have names for. The morsel pipeline I tried in AxlDB transferred back. A handful of primitives AxlDB had and rayforce did not got ported in. The repo stays as a frozen lab notebook.
 
-What it did not give me, that I had hoped for:
-
-- A different way to look at the type system. AxlDB ended up with the same shape as rayforce here, more or less by inevitability. The shape is right. There is no other shape.
-- A reason to write things in a second language. AxlDB and rayforce are both C. They should have been more different than they were. They were not.
-
-Shelving means: the repo stays. The README gets a note that says "this is a frozen experiment, see rayforce". I keep the commit history because the commit history is the lab notebook. If I ever need an embedded engine without a database, I have one ready.
-
-The honest reason to close it now is that I want to spend the energy on the rayforce launch. There is a finite amount of focus, and AxlDB has spent its share.
+A hundred and seventy-nine commits to learn that there is no other shape is a reasonable trade. I would rather know.

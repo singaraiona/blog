@@ -5,17 +5,16 @@ publishedAt: 2022-08-30
 tags: [hyperbridge, rust, concurrency, atomics]
 ---
 
-A design rewrite that took a month and ships today as 0.2.5. The commit messages from this last week tell the story more honestly than I could:
+One bit, two meanings. That is the trick that ships today as 0.2.5.
 
-```
-two-atomics schema
-two-atomics cursor schema
-spin on head overtake
-do not allow head overtake tail
-fixed flags logic in a head
+```rust
+const CLOSED_FLAG:  usize = 1 << 63;
+const CROSSED_FLAG: usize = CLOSED_FLAG;
 ```
 
-The "two atomics" name is for the cursor at each end of the channel. A cursor is now exactly:
+The same bit, in `Cursor::index`, means different things at the two ends of the channel. On `tail.index` it is `CLOSED_FLAG`: producers see it and stop. On `head.index` it is `CROSSED_FLAG`: the consumer has stepped onto a block the producer no longer points at. The reused bit is the difference between "spin once and recover" and "lock to be safe" - the consumer can detect the cross-block race in the same load it uses to read the position.
+
+For the bit reuse to work, the cursor needs both pieces it dereferences off the same atomic word. That is the cursor schema:
 
 ```rust
 struct Cursor<T> {
@@ -24,40 +23,6 @@ struct Cursor<T> {
 }
 ```
 
-`index` carries the sequence position with one flag bit reserved at the top. `block` points at the current `Block<T>` of slots. The channel has two of these, padded onto separate cache lines:
+`index` carries the sequence position with that one flag at the top; `block` points at the current `Block<T>`. The channel keeps two cursors, head and tail, on separate cache lines.
 
-```rust
-struct Channel<T> {
-    tail: CachePadded<Cursor<T>>,
-    head: CachePadded<Cursor<T>>,
-    receivers: AtomicUsize,
-    senders: AtomicUsize,
-}
-```
-
-A block is fixed-size:
-
-```rust
-const ROUND: usize = 64;
-const BLOCK_SIZE: usize = ROUND - 1;
-
-struct Block<T> {
-    next: AtomicPtr<Block<T>>,
-    slots: [Slot<T>; BLOCK_SIZE],
-}
-```
-
-`head & BLOCK_SIZE` gives the slot inside the current block. `head / ROUND` gives the block-sequence number. The producer writes a slot, advances `tail.index`. The consumer reads a slot, advances `head.index`. When either steps past `BLOCK_SIZE`, it follows `block.next` (or allocates a new block, on the producer side, and links it).
-
-The flag bit lives at `1 << 63`. It serves two purposes, depending on which cursor reads it:
-
-```rust
-const CLOSED_FLAG:  usize = 1 << 63;
-const CROSSED_FLAG: usize = CLOSED_FLAG;
-```
-
-On `tail.index`, the bit is `CLOSED_FLAG`: producers see it and stop. On `head.index`, the same bit acts as `CROSSED_FLAG`: it tells the consumer it has stepped onto a block the producer no longer points at. The reused bit is the difference between "spin once and recover" and "lock to be safe".
-
-The rule that kept me sane during this rewrite was: "do not allow head overtake tail". It is one line in the spec, two pages of edge cases in the implementation, and exactly one assertion in the tests. Every time I broke it, the tests caught it within a minute.
-
-0.2.5 is on crates.io tonight. I am not going to push more on this crate for a while. It does what it set out to do, and the API has been stable across three minor versions. There is a moment in any library's life where the right thing is to leave it alone. I think this one is there.
+I am not going to push more on this crate for a while. There is a moment in any library's life where the right thing is to leave it alone.

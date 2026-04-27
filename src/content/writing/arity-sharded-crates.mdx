@@ -5,20 +5,8 @@ publishedAt: 2023-09-19
 tags: [theplatform, architecture, rust]
 ---
 
-The reference implementation - tachyon - is a Rust workspace, and the workspace is shaped by arity.
+The workspace is one crate per arity class - `monad`, `dyad1..dyad4`, `triad`, `tetrad1..tetrad3`, plus the reactor and parser registrations - because that is the structure the language already had. The workspace is just being honest about it.
 
-There is one crate per arity class for the value-side primitives: `monad`, `dyad1`, `dyad2`, `dyad3`, `dyad4`, `triad`, `tetrad1`, `tetrad2`, `tetrad3`. There is one crate per arity class for reactions and parser primitives. The kernel crate links them and exposes a single registry. That is most of the workspace.
+The non-obvious win is in monomorphisation. Generic kernels are instantiated once per element type per arity, in their own crate, and the resulting code lives in one object file. Without arity-sharding, the same generic instantiation appears in every crate that calls into a primitive, the linker does what it can about the duplicates, and it never does enough. By cutting the workspace along the same line the dispatch already cuts, the duplication never happens.
 
-This sounds like a strange way to slice a project. It is also the cleanest one I have tried.
-
-**Compile units stay small.** Each crate has on the order of a few thousand lines. When I touch a dyadic primitive, only `dyad2` recompiles. The whole workspace builds in seconds; a single-file change builds in milliseconds.
-
-**The extension protocol is by arity.** A new monadic primitive is an entry in the `monad` crate's registry. A new join pattern is an entry in the `react` crate's registry. There is no question about where it goes; the arity tells you. Code review converges faster.
-
-**Generic monomorphisation is bounded.** The hot loops are monomorphised once per element type per arity, not once per call site. Without arity-sharding, the same generic code lives in every crate that calls a primitive, and the linker does what it can but it never does enough.
-
-**Tests are co-located with their arity.** A `monad/tests` directory tests monadic kernels. A `triad/tests` directory tests triadic kernels. A failing triadic test does not require a binary search across the workspace.
-
-The thing this shape costs me is also real: someone reading the codebase for the first time has to learn arity-classification before anything makes sense. Newcomers ask, fairly, "why is `+` defined in two places". The answer is short ("it is two primitives sharing a glyph") but it has to be given.
-
-If I were to start over today I would still shard by arity. It is the structure that the language already wanted; the workspace is just being honest about it.
+The tax is that someone reading the codebase has to learn arity classification before anything makes sense. Newcomers ask, fairly, "why is `+` defined in two places". The answer is short - "it is two primitives sharing a glyph" - but it has to be given. I would still shard by arity.
