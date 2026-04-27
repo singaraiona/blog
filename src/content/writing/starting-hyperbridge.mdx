@@ -5,7 +5,7 @@ publishedAt: 2021-11-17
 tags: [hyperbridge, rust, concurrency]
 ---
 
-I needed an MPMC channel with async support, last week, in a Rust project I do not have permission to talk about. crossbeam-channel has the MPMC unbounded channel I wanted but no async surface; tokio's mpsc has async but is single-consumer. flume is close on paper and worked on benches I do not believe. So I spent the weekend writing my own. Today I open-sourced it.
+The need came from theplatform: a place inside the Rust runtime where I had many producers and many consumers and wanted an async surface across both. crossbeam-channel has the MPMC unbounded channel but no async; tokio's mpsc has async but is single-consumer; flume is close on paper and worked on benches I did not believe. So I spent the weekend writing my own. Today I open-sourced it as its own crate, separate from theplatform, because the channel does not need to know what is using it and other Rust projects of mine end up wanting the same thing.
 
 The crate is called hyperbridge. The README is two paragraphs and the benchmark file is in the initial commit. That is on purpose: I do not want to publish a channel implementation people have to take on faith. If you do not believe my numbers you can run them.
 
