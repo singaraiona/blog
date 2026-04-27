@@ -69,8 +69,9 @@ public/
   avatar.png             - profile photo, 552KB (sourced from ../../cv/avatar.png)
   resume.pdf             - CV PDF, 992KB (sourced from ../../cv/anton_kundenko_cv.pdf)
   CNAME                  - "hetoku.com"
-  favicon.svg            - "A_" mark using Roboto Slab Bold A glyph + underscore glyph,
-                           extracted via fontTools. Don't replace with hand-drawn geometry.
+  favicon.svg            - stylised "A" mark with horizontal crossbar. accent green
+                           (#7ce3b5) glyph and crossbar on rounded dark (#0b0f0d) tile,
+                           32x32 viewBox, hand-tuned svg geometry.
 ```
 
 ## Common operations
