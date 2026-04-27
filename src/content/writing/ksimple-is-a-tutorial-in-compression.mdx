@@ -13,8 +13,8 @@ Two things I keep noticing.
 
 **Compression is a tool, not a vice.** A `for` loop in ksimple is one character with a side effect of advancing an index. A type tag is one byte. A null check is a comparison against a magic value. None of this is unreadable; it is readable in the way that a circuit diagram is readable, once you know the symbols. The cost is the symbol table you carry in your head. The reward is that the program fits in your head all at once.
 
-I will not write Rayfall like ksimple. I have already explained why. But I have stolen two ideas from this week of reading.
+I will not write Rayfall like ksimple. I have already explained why. But I have walked away from this week with two convictions.
 
-The first is that the dispatch table for Rayfall primitives should be a single contiguous array indexed by `(arity << 16) | id`, not a tree of structs. The second is that null handling should be inline in the kernel, not a wrapper around it. Both make the code shorter; both, I checked, also make it faster.
+The first is that the dispatch table for primitives should be flat. One contiguous array, the call site does the lookup, no boxing of function pointers in trees of structs. The second is that null handling should be inline in the kernel, not a wrapper around it. Both make the code shorter; both, in microbenchmarks of patterns I cared about, also make it faster.
 
 I owe a debt to ksimple for nudging me back to compactness. Rayfall is verbose where the user reads it and short where the CPU runs it.

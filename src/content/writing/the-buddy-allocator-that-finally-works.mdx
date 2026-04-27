@@ -1,6 +1,6 @@
 ---
 title: the buddy allocator that finally works
-summary: three rewrites this year. the third one is the keeper. about ninety percent of small allocations now hit the slab cache.
+summary: three rewrites this year. the third one is the keeper. small allocations take a slab fast path; the rest fall through to a buddy.
 publishedAt: 2024-12-04
 tags: [rayforce, c, performance, allocator]
 ---
@@ -11,16 +11,38 @@ The first version was a slab cache with a freelist per size class. It was fast o
 
 The second version was a single arena with a bump pointer and a single reset point per query. It was very fast on reads and unusable as soon as a query had any interleaved allocation lifetime. Out.
 
-The third version is a buddy allocator with a slab cache in front of it. Small allocations - which is most of them - hit the slab cache. The cache hit rate, measured over the test suite, is around ninety percent. The buddy underneath handles the rest, including the large ones the slab cache cannot serve. Both are backed by a fixed-size memory pool that the application sizes at startup. There is no `malloc`.
+The third version is a buddy allocator with a slab cache in front of it. Small allocations take the slab fast path; the buddy underneath handles the rest, including the large ones the slab cache cannot serve. Both are backed by a fixed-size memory pool that the application sizes at startup. There is no `malloc` outside startup.
 
+The shape, lightly trimmed from `core/heap.c`:
+
+```c
+raw_p heap_alloc(i64_t size) {
+    block_p block;
+    heap_p heap = VM->heap;
+
+    if (UNLIKELY(size == 0 || size > BSIZEOF(MAX_POOL_ORDER)))
+        return NULL;
+
+    i64_t block_size = BLOCKSIZE(size);
+    i64_t order = ORDEROF(block_size);
+
+    // Fast path: slab cache for small allocations
+    if (LIKELY(IS_SLAB_ORDER(order))) {
+        i64_t idx = SLAB_INDEX(order);
+        if (LIKELY(heap->slabs[idx].count > 0)) {
+            block = heap->slabs[idx].stack[--heap->slabs[idx].count];
+            block->used = 1;
+            block->heap_id = heap->id;
+            return BLOCK2RAW(block);
+        }
+    }
+
+    // Slow path: buddy split / pool grow / mmap
+    ...
+}
 ```
-alloc(n):
-    if n <= SLAB_MAX:
-        bucket = size_class(n)
-        if not empty(slab[bucket]):
-            return pop(slab[bucket])
-    return buddy_alloc(round_up_pow2(n))
-```
+
+`LIKELY` and `UNLIKELY` are the branch hints that nudge the compiler to lay out the slab path inline. The slab fast path is two loads, a decrement, and a return. The buddy path is the long tail.
 
 What took me three rewrites is not the data structure. It is the discipline of holding the allocator behind a single function pointer that everything in the runtime calls. Once that pointer was the only entry, swapping the implementation became a one-line change. Before that, six different parts of the kernel were calling six different allocators "for now", and "for now" had been six months.
 

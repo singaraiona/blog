@@ -7,13 +7,16 @@ tags: [theplatform, o, design]
 
 The language has a name now: O. It will probably keep changing.
 
-The first thing I needed to settle was the dispatch rule. Not the syntax. The syntax follows. In O, every primitive declares its arity and its judgment - what it accepts, what it returns, whether it is value-shaped or stream-shaped. The runtime indexes everything by that. There is no separate function-call machinery; the call is just an arity look-up plus an apply.
+The first thing I needed to settle was the dispatch rule. Not the syntax. The syntax follows. In O, every primitive will declare its arity and its judgment - what it accepts, what it returns, whether it is value-shaped or stream-shaped. The runtime indexes everything by that. There is no separate function-call machinery; the call is just an arity look-up plus an apply.
+
+On paper today this is a notebook sketch, not real code. The sketch:
 
 ```
-+    monad   reduce / sum
-+    dyad    elementwise add
-.    dyad    apply / dispatch
-.    triad   conditional
+glyph  arity  judgment
++      monad  reduce / sum
++      dyad   elementwise add
+.      dyad   apply / dispatch
+.      triad  conditional
 ```
 
 Same glyph, different rows in the table. Reading it like that took the mystery out of the K family for me. There is nothing magical about overloaded operators when every operator is overloaded by construction. The cost is exactly one branch on arity.

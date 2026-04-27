@@ -9,11 +9,11 @@ I needed an MPMC channel with async support, last week, in a Rust project I do n
 
 The crate is called hyperbridge. The README is two paragraphs and the benchmark file is in the initial commit. That is on purpose: I do not want to publish a channel implementation people have to take on faith. If you do not believe my numbers you can run them.
 
-The shape is the obvious one. A lock-free unbounded channel built around a linked list of fixed-size blocks, atomic head and tail, MPSC and MPMC by feature. Async support comes through a small wrapper that exposes futures Sink and Stream. There are no third-party dependencies in the core; the futures support is behind a feature flag.
+The shape is the obvious one. A lock-free unbounded channel built around a linked list of fixed-size blocks. Each end of the channel is a `Cursor`: one `AtomicUsize` for the sequence index and one `AtomicPtr<Block<T>>` for the current block. Each block holds a fixed array of `Slot<T>`, with a `next` pointer the writer publishes when the block fills. MPSC and MPMC are the same data structure with different consumer paths. Async support comes through a small wrapper that exposes futures Sink and Stream. There are no third-party dependencies in the core; the futures support is behind a feature flag.
 
 What I am explicitly trying to avoid:
 
-- Hidden allocations in the hot path. The block size is large enough that allocation happens rarely; the inline cursor is one atomic.
+- Hidden allocations in the hot path. Blocks are pooled and reused; allocation happens at block boundaries, not at every send.
 - Lock contention on the slow path. Spinning is fine; locking is not. The channel never takes a mutex.
 - Unsafe blocks without comments. There are unsafe blocks. They are commented one for one.
 

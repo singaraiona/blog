@@ -7,7 +7,7 @@ tags: [rayforce, c, design]
 
 A year and a half of thinking. Today I started.
 
-The first file is `block.c`. It is a hundred and twenty lines. It defines a column block: a header with type and length, and an aligned data region. There is one allocator function. There is one free function. There is no test yet. There is no language. There is barely a project.
+The first piece of code on disk is a tagged-union value type. A header byte for the tag, a union of a char, an int, a float, and a pointer-to-itself for the recursive case. That is it. No language yet. No allocator yet. Not even a column type yet. Just the seed of the value algebra everything else will sit on.
 
 I am writing it in C because the entire point is the size of the linked artifact and the complexity of the toolchain to build it. Rust would be more pleasant in a hundred small ways and would cost me both of those. The version of this database I want to ship lives in someone else's binary. It cannot drag a Cargo workspace and a tokio runtime with it. C is the thing every embedded host already knows how to link.
 

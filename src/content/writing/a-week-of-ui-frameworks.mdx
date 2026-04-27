@@ -13,9 +13,9 @@ The motivation was simple. The WASM browser SDK is good for embedding into any w
 
 **Day four: Floem.** Rust reactive UI in a single crate. I had read the docs for an evening months ago and wanted to give it a real day. Built the table viewer. The framework is good. It is also single-author and a moving target, and I kept finding edges that needed me to write Floem rather than write my application. Closed the laptop.
 
-**Day four, evening: Iced.** Five commits, less than an hour. Spawned a window. Rendered a table. Realised I would be writing Iced's layout engine for any nontrivial dashboard. Closed.
+**Day four, evening into morning: Iced.** Five commits across the day. Spawned a window. Rendered a table. Realised I would be writing Iced's layout engine for any nontrivial dashboard. Closed.
 
-**Day five onwards: C++ with a custom widget set.** This is the one that stuck. About a thousand lines of C++ for the framework, which I now own; another two thousand for the application. The application starts in twenty milliseconds. The binary is six megabytes total. I link it against rayforce directly and there is no IPC.
+**Day five onwards: C++ with a custom widget set.** This is the one that stuck. A small framework that I now own, plus the application on top. I link it against rayforce directly and there is no IPC. Cold start is fast, the binary is small, and the parts I care about are mine to control.
 
 I am a database engineer who was, for a week, a UI engineer. The lesson is the lesson I keep relearning: when the stack does not match the discipline, no amount of framework convenience makes up for the impedance. C is not a UI language. C++ with a small widget set is, in my hands, the path of least friction for a UI that ships next to a database that is also written in C.
 

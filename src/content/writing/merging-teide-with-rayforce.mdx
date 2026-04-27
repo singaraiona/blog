@@ -11,7 +11,7 @@ Teide started as a clean C17 columnar dataframe engine with a different lineage.
 
 Rayforce had: the language. The Rayfall VM. Two and a half years of library hardening, a stable C ABI, a Python binding, a WASM SDK, and a community of users that, while small, was real. The optimiser was a little dumb but the surface was real.
 
-Teide had: a better execution model and a graph engine that did not exist anywhere else I trusted. A morsel pipeline that ran twenty percent faster than rayforce on the queries we both ran. CSR-stored columns that let us do graph traversal as a fused DAG operation.
+Teide had: a better execution model and a graph engine that did not exist anywhere else I trusted. A morsel pipeline that ran faster than rayforce on every query we both supported, by a margin that depended on the query but was always in Teide's favour. CSR-stored columns that let us do graph traversal as a fused DAG operation.
 
 The decision was to keep rayforce's surface and Teide's engine. The new repo - rayforce2 - was created with Teide's source tree as the initial commit. The first month is being spent porting the Rayfall VM into it and making the language compile down to Teide's DAG.
 

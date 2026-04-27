@@ -19,6 +19,6 @@ What does it buy?
 
 **Operational consistency.** Profiling, tracing, error reporting, cancellation - they are all attached to the dispatch, not to the subsystem. When a reaction misbehaves I see the same trace shape I see when a vector op misbehaves. I do not maintain two debuggers.
 
-Concretely: in the kernel, the primitive registry is one struct. It has a couple of thousand entries. About half are vector ops, a quarter are reactions and reaction combinators, and a quarter are parser primitives and grammar combinators. The fact that the file is one file is the entire point.
+Concretely: in the kernel, the primitive registry is one struct, populated by the arity-classed crates (`monad`, `dyad1..dyad4`, `triad`, `tetrad1..tetrad3`) plus the reactor and parser registrations. There is one extension protocol; new subsystems are new rows in the same table. The fact that everything routes through it is the entire point.
 
 If I had to give up one idea from the last four years, it would not be this one.

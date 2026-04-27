@@ -5,20 +5,58 @@ publishedAt: 2022-08-30
 tags: [hyperbridge, rust, concurrency, atomics]
 ---
 
-A design rewrite that took a month and ships today as 0.2.5.
+A design rewrite that took a month and ships today as 0.2.5. The commit messages from this last week tell the story more honestly than I could:
 
-The original hyperbridge layout had one atomic each for head and tail, plus a flag word for state. That works, and was correct, but had two costs. First, head and tail being independent meant the producer and consumer were touching cache lines that ping-ponged whenever both were busy. Second, recovering from a head-overtake-tail bug - which happens under contention if you are not very careful - required a third atomic acting as a fence.
+```
+two-atomics schema
+two-atomics cursor schema
+spin on head overtake
+do not allow head overtake tail
+fixed flags logic in a head
+```
 
-The rewrite fits both head and tail into two atomics, with the cursor information packed in a way that producer and consumer can validate the other's position in one read. The schema looks roughly like this:
+The "two atomics" name is for the cursor at each end of the channel. A cursor is now exactly:
 
 ```rust
-struct Cursor {
-    head: AtomicU64, // [block_index : 32 | slot : 31 | flag : 1]
-    tail: AtomicU64, // [block_index : 32 | slot : 31 | flag : 1]
+struct Cursor<T> {
+    index: AtomicUsize,
+    block: AtomicPtr<Block<T>>,
 }
 ```
 
-The flag bit is not glamorous. It is the bit that lets the consumer know whether the slot it just read was the slot the producer last wrote, or a stale value from the previous epoch. That bit is the difference between "spin once and recover" and "lock to be safe".
+`index` carries the sequence position with one flag bit reserved at the top. `block` points at the current `Block<T>` of slots. The channel has two of these, padded onto separate cache lines:
+
+```rust
+struct Channel<T> {
+    tail: CachePadded<Cursor<T>>,
+    head: CachePadded<Cursor<T>>,
+    receivers: AtomicUsize,
+    senders: AtomicUsize,
+}
+```
+
+A block is fixed-size:
+
+```rust
+const ROUND: usize = 64;
+const BLOCK_SIZE: usize = ROUND - 1;
+
+struct Block<T> {
+    next: AtomicPtr<Block<T>>,
+    slots: [Slot<T>; BLOCK_SIZE],
+}
+```
+
+`head & BLOCK_SIZE` gives the slot inside the current block. `head / ROUND` gives the block-sequence number. The producer writes a slot, advances `tail.index`. The consumer reads a slot, advances `head.index`. When either steps past `BLOCK_SIZE`, it follows `block.next` (or allocates a new block, on the producer side, and links it).
+
+The flag bit lives at `1 << 63`. It serves two purposes, depending on which cursor reads it:
+
+```rust
+const CLOSED_FLAG:  usize = 1 << 63;
+const CROSSED_FLAG: usize = CLOSED_FLAG;
+```
+
+On `tail.index`, the bit is `CLOSED_FLAG`: producers see it and stop. On `head.index`, the same bit acts as `CROSSED_FLAG`: it tells the consumer it has stepped onto a block the producer no longer points at. The reused bit is the difference between "spin once and recover" and "lock to be safe".
 
 The rule that kept me sane during this rewrite was: "do not allow head overtake tail". It is one line in the spec, two pages of edge cases in the implementation, and exactly one assertion in the tests. Every time I broke it, the tests caught it within a minute.
 

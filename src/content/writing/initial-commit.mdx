@@ -1,6 +1,6 @@
 ---
 title: initial commit
-summary: the rayforce repo went on disk today. five hundred lines, no dependencies, one passing test.
+summary: the rayforce repo went on disk today. seven files, a hundred and three lines, no allocator, no test.
 publishedAt: 2023-02-22
 tags: [rayforce, c]
 ---
@@ -13,10 +13,40 @@ The repo had its initial commit today. I have been writing notes for two and a h
 2023-02-22 initial commit
 ```
 
-The contents of that commit are unimpressive on purpose. A `Makefile` that builds one object file. A `block.c`. A `block.h`. A `test.c` with three asserts. The whole repo is under five hundred lines.
+The contents of that commit are unimpressive on purpose. Seven files, one hundred and three lines:
 
-What I am proud of in this commit, if "proud" is the right word for an empty repo, is what is not in it. There is no `vendor/` directory. There is no `third_party/`. There is no logging library. There is no error-handling framework. There is no language yet, no parser, no REPL.
+```
+.gitignore     3
+LICENCE        0
+README.md      0
+src/Makefile  17
+src/main.c    42
+src/storm.c    1
+src/storm.h   40
+```
 
-What it does have is a column block that holds typed data, a buddy allocator that hands out aligned regions, and a single test that round-trips an integer column. That is enough. The next commit can be a second test. The commit after that can be a second column type. The commit after that can be a kernel.
+`storm.h` is the only file with any structure: three typedefs (`Char`, `Int`, `Float`), four type-tag constants (`TYPE_NODE`, `TYPE_CHAR`, `TYPE_INT`, `TYPE_FLOAT`), and one generic value type:
+
+```c
+typedef struct Stype
+{
+    Char type_t;
+    union
+    {
+        Char char_t;
+        Int int_t;
+        Float float_t;
+        struct Stype *snode_t;
+    };
+} *Snode;
+```
+
+That tagged union is the seed of the whole runtime. Everything that becomes a column, a row, a primitive's argument, a parsed AST node, will be a descendant of this struct. Today it stores one scalar.
+
+`main.c` is forty-two lines of nothing serious - a `vec add` of two pairs of floats, the kind of code you write to confirm that the toolchain works.
+
+What I am proud of in this commit, if "proud" is the right word for an empty repo, is what is not in it. There is no `vendor/` directory. There is no `third_party/`. There is no logging library. There is no error-handling framework. There is no language, no parser, no REPL, no allocator, no test. None of those things land today.
+
+The next commit can be a second file. The commit after that can be a second type. The commit after that can be a primitive.
 
 The thing I keep telling myself, and will keep telling myself when I am tempted to add a dependency, is that the most expensive code in any project is the code you did not write. The library you take is forever yours to debug, regardless of who wrote it. So I am writing it.

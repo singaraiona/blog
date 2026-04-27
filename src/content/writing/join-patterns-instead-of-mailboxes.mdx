@@ -7,12 +7,15 @@ tags: [theplatform, concurrency, join-calculus]
 
 The first version of the reactor is in. It is small enough to fit in a screen, and that is the part I want to keep.
 
-A reaction in O has two sides: a pattern and a body. The pattern is a tuple of channel names with binders. The body is a piece of O. The runtime picks reactions whose patterns are simultaneously satisfied by values present in the relevant channels and fires them. Atomically. Once.
+A reaction in O has two sides: a body and a binder list. Each binder names a value to take from a reagent (the join-calculus channel). The runtime picks reactions whose binders are simultaneously satisfied by values present on those reagents and fires them. Atomically. Once.
+
+The body is a normal O lambda. The binders are typed against reagent names, like a function signature:
 
 ```
-react (orders ?o, quotes ?q) when o.sym == q.sym:
-    fill o at q.price
+react {[x:h1;y:h2] r:(eval x)+eval y; res:: r};
 ```
+
+That is straight from `kernel/o/tests/o.o`: bind `x` from reagent `h1`, bind `y` from reagent `h2`, fire the body when both have a value, evaluate them, sum the results, store into a third reagent.
 
 Three things this gets you that an actor mailbox does not.
 

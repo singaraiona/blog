@@ -1,25 +1,38 @@
 ---
 title: the first monad
-summary: six months in, looking back at the commit that set the dispatch shape.
+summary: six months in, looking back at the function that opened the language. it allocated. the discipline came later.
 publishedAt: 2023-08-19
 tags: [rayforce, rayfall, c, design]
 ---
 
-Six months in. The repo's first language primitive landed back in February, the day after the initial commit. I want to write down what it took to get there, because the shape that one twenty-line function set is still the shape every kernel has now.
+Six months in. The repo's first language primitive landed back in February, the day after the initial commit. The commit message reads, plainly:
 
-A monad in this language is a unary verb. The literal commit message was "introduce first monad". The primitive is `count`: it takes a column, returns its length. That is all. Twenty lines including the header.
+```
+introduce first monad
+```
 
-The reason it matters is that I had to settle every structural decision to land it. How does the dispatch table look? Where does the result vector get its memory? What is the type of the function pointer? How does the parser recognise a primitive? None of these had answers when I opened the repo. By the time the first monad shipped, they did.
+Looking at it now I want to write down two things. What it actually was, and what it told me I still had to learn.
 
-The dispatch is by arity, the way K does it, the way O did it in ThePlatform. Monads have their own table. Dyads will have their own table. There is no "function" type that absorbs every arity, because that flattens the cost; with arity-classed tables, the call site does no branching beyond the arity it already knows.
+The primitive is `til`. K calls it `!N`. APL calls it `iota`. It takes an integer N and returns the vector `0, 1, 2, ..., N-1`. It is the smallest interesting kernel I could think of, the one that produces structure rather than collapses it, and so the one that forces the runtime to answer "where does a result live".
 
-The result memory comes from the caller. The kernel writes into a slice the caller pre-sized. This is a rule I learned in ThePlatform and want to hold from the first kernel here. No allocation in the inner loop. The kernel does not own its output.
+The first version answered that question with `malloc`:
 
 ```c
-void monad_count(block *out, const block *in) {
-    out->n = 1;
-    ((i64 *)out->data)[0] = in->n;
+g0 til(i64 count)
+{
+    i64 *vec = (i64 *)malloc(count * sizeof(i64));
+    for (i64 i = 0; i < count; i++)
+    {
+        vec[i] = i;
+    }
+    return new_vector_i64(vec, count);
 }
 ```
 
-That is the whole primitive. If it does not look like much, that is exactly the point. The shape it sets - signature, memory contract, table entry - is what the next two thousand kernels will inherit. Get the shape right and the kernels are short. Get it wrong and the kernels are forever explaining themselves.
+Twelve lines including the include. It returns a `g0`, the opaque object handle the rest of the runtime knows how to pass around. It allocates. The caller does not own the buffer. The kernel does.
+
+That is the shape I had on day one and it is not the shape the kernel has now. Today's `til` does not call `malloc` directly; the buddy allocator is in front of it, the slab cache is in front of that, and the memory it returns is recycled across queries instead of asked of the OS. But on day one the discipline was not there. I knew it was coming and I wrote the easy version anyway, because the easy version is what teaches you which discipline you need.
+
+What this kernel did do, and what has held since, is the dispatch shape. A monad has its own table. The function signature is a single argument in, a single result out, both `g0`. The parser maps a token to a slot in the table. There is no function-pointer-of-everything. There is one slot per arity per glyph, and the caller branches once on the arity it already knows.
+
+Six months on, the table has more rows. The kernels that fill it have learned to stop calling `malloc`. The shape `til` set on day one is the shape every monad still uses.
