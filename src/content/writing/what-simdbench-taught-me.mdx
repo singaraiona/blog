@@ -1,0 +1,18 @@
+---
+title: what simdbench taught me
+summary: a single c file, a makefile, and a csv. the rule that emerged after four months of measuring.
+publishedAt: 2025-09-23
+tags: [rayforce, performance, simd, benchmarking]
+---
+
+simdbench is the smallest of my repos. It is a single C file plus a Makefile, and it answers one question over and over: how fast does this loop go on the machines I actually have.
+
+I started it in May. It has paid for itself ten times over.
+
+What I do with it: I write a candidate kernel - say, an integer sum, a vectorised filter, a hash mix - in a few variants. Scalar. Auto-vectorised by the compiler. Hand-written with intrinsics. Sometimes a couple of micro-architectural variants. simdbench runs each variant a thousand times, on a fixed input, prints throughput, and writes the result to a CSV. I keep the CSV. I run it again on the next machine. I diff.
+
+The number of times the result has been "the auto-vectorised version is within five percent of the hand-rolled one" is the surprise. I keep expecting hand-rolling to win; I keep being wrong, on modern Clang and GCC, on the patterns that look like the kernels I actually need. The cases where the intrinsics actually win are narrower than I assumed. They are usually about controlling unrolling, or about a specific shuffle that the compiler will not synthesise.
+
+The cases where intrinsics lose are the ones I have learned the most from. A kernel I had hand-rolled for two days was four percent slower than the loop I had been using as the baseline. Two days. Four percent. I had not measured.
+
+I have a rule now. Before any hand-written intrinsic in the rayforce kernel, simdbench has a row for the candidate. If the row says "the autovectoriser is fine", the autovectoriser is fine and I move on. If the row says "intrinsics win by a real margin", I write the intrinsic and a comment that says how much. The CSV is the comment.

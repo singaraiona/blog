@@ -1,0 +1,21 @@
+---
+title: grammars are values, not strings
+summary: when grammars become first-class, the language stops being two languages.
+publishedAt: 2019-01-23
+tags: [theplatform, parsing, peg, design]
+---
+
+When grammars are values, the language stops being two languages.
+
+Most of my career, parsers have been a separate phase. You write a `.g4` file, you run a tool, you get a `Parser.java`, you import it from your real code. The grammar sits in another world. The values it produces are also in another world: an AST written by the tool, with names you did not pick, with quirks you cannot fix without forking the generator.
+
+In O, a grammar is a primitive of arity one or two, returning a parse value. It has the same shape as any other primitive in the runtime. Which means:
+
+- I can compose grammars with the same operators I compose computations with.
+- I can pass a grammar as an argument. A reaction can accept "the grammar to apply" the way a sort can accept "the comparator to use".
+- I can mutate a grammar at runtime. A new venue ships a new tag at 09:30 UTC; I add the rule, the reactor reloads, the next message parses.
+- I can quote into a grammar. `@(expr)` splices a host expression into the rule, so a length-prefixed binary protocol whose length is an arithmetic combination of three header fields becomes a single rule. ANTLR cannot do this; it does not know what an O expression is.
+
+This is the unification I keep talking about. It is not aesthetics. It is the thing that lets a hundred and forty lines of O do the work of eight thousand lines of generated Java. The grammar lives in the same world as the data it produces and the reaction that consumes it. There is no boundary to cross, so there is no friction to budget for.
+
+If you have ever owned a parser from a code generator, you know exactly what kind of friction I mean.

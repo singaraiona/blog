@@ -1,0 +1,24 @@
+---
+title: shelving axl
+summary: four months, one hundred and seventy-nine commits, then closed. what the experiment gave back and what it did not.
+publishedAt: 2025-10-31
+tags: [rayforce, axl, design]
+---
+
+AxlDB is on ice as of today. Four months of commits, a hundred and seventy-nine of them. I am happy with the experiment and I am closing the lid.
+
+What it gave me, concretely:
+
+- A clear view of the engine-vs-database boundary in rayforce. Several internal seams that used to feel arbitrary now have names. Two of them are getting refactored into rayforce next week.
+- A handful of primitives that AxlDB had and rayforce did not, that turn out to be useful inside the database too. They are being ported.
+- One execution-model variant - a strict morsel pipeline with no scalar fallback - that performed well enough on AxlDB that I am going to try it in rayforce. This is the one that matters most.
+- A reminder that I am not, in fact, going to ship two analytics products. I do not have the energy for that, and the world does not need them. The embedded niche I imagined for AxlDB is real, but rayforce can serve it with a smaller compile-time configuration.
+
+What it did not give me, that I had hoped for:
+
+- A different way to look at the type system. AxlDB ended up with the same shape as rayforce here, more or less by inevitability. The shape is right. There is no other shape.
+- A reason to write things in a second language. AxlDB and rayforce are both C. They should have been more different than they were. They were not.
+
+Shelving means: the repo stays. The README gets a note that says "this is a frozen experiment, see rayforce". I keep the commit history because the commit history is the lab notebook. If I ever need an embedded engine without a database, I have one ready.
+
+The honest reason to close it now is that I want to spend the energy on the rayforce launch. There is a finite amount of focus, and AxlDB has spent its share.

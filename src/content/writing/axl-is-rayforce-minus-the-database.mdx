@@ -1,0 +1,16 @@
+---
+title: axl is rayforce minus the database
+summary: started a sidequest. axldb is the rayforce kernel with the database parts torn out. eight hundred lines, no language, no tables.
+publishedAt: 2025-06-07
+tags: [rayforce, axl, c, design]
+---
+
+Started a new repo today: AxlDB. The README calls it "a fast, minimalist vector engine for real-time analytics, plain C, no bloat". That is the polite version. The honest version is that I want to test what the rayforce primitives feel like with the database parts torn out.
+
+AxlDB is rayforce stripped of: the query language, the table abstraction, persistence, the REPL, error chains, and most of the type system. What is left is the kernel. Vectors of fixed-width types, a few dozen primitives, a tiny entry point that takes a function id and an argument list and runs it. About eight hundred lines.
+
+Why bother? Because I want to know how much of the rayforce binary is the database and how much is the engine. Right now they are tangled. AxlDB lets me hold the engine in one hand without the database getting in the way. It also lets me try shapes that would be invasive to rayforce: a different evaluation model, a different memory layout, a stricter pure-vector interface.
+
+The other reason - the one I write down here so I do not lie to myself later - is that I want the option of an even smaller artifact for embedded use cases. There are places where a database is too much. A signal-processing pipeline does not need tables. A real-time loop on a microcontroller does not need a query language. AxlDB is what fits there.
+
+I do not yet know whether AxlDB ends up shipping as its own thing, gets reabsorbed into rayforce, or becomes a lab notebook for ideas that find their way back. All three are fine. The point of the experiment is to be honest about which parts of rayforce are the engine and which are the database. By the time you finish writing two of something, you usually know.

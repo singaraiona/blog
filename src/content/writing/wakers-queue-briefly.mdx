@@ -1,0 +1,23 @@
+---
+title: wakers queue, briefly
+summary: two days trying to wake n receivers in order. one commit message that is more honest than i would normally write.
+publishedAt: 2021-11-19
+tags: [hyperbridge, rust, async, post-mortem]
+---
+
+Two-day post-mortem on a piece of design I had to undo.
+
+Hyperbridge supports MPMC channels. Hyperbridge has an optional futures feature that exposes Sink and Stream. The combination of those two means there can be many receivers, each holding a Stream future, each wanting to be woken when a value lands. The first version of the crate held a queue of wakers - one per receiver - and tried to wake the right ones in order.
+
+This is correct behavior on paper. It is also, as far as I can tell after two days of trying, not implementable optimally without either a lock or an unbounded amount of bookkeeping. The version I had worked, and was correct, and was slow enough that the benchmarks I wrote on day one called it a regression against a single-mutex approach. That is the wrong direction for a lock-free channel.
+
+So I backed off. The MPMC + futures surface now uses a single waker per channel, not per receiver. When a value lands, that waker fires; the receiver that gets there first gets the value, the others get a None and re-register. This is not strictly fair. It is, on every benchmark I have run, faster.
+
+The commit message reads, more honestly than I would normally write:
+
+```
+get rid on mpmc support for futures Stream because of
+lack an optimal correct implementation of multiple wakers queue
+```
+
+Versions 0.1.1 and 0.1.2 ship this evening with the simpler waker. If anyone needs strict per-receiver wake ordering, they will need a different crate. I would rather publish the slower version honestly than the faster version with a bug I will be hunting in a year.

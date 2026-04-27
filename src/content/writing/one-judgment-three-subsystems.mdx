@@ -1,0 +1,24 @@
+---
+title: one judgment, three subsystems
+summary: the bet i made in 2016 that i am, finally, fairly sure was right.
+publishedAt: 2020-10-04
+tags: [theplatform, o, architecture]
+---
+
+Here is the bet I made in 2016 that I am, finally, fairly sure was right.
+
+There is one judgment in O. It says: a primitive has an arity, an effect class, and a shape signature, and the runtime selects implementations from a table indexed by those. Vector ops are primitives. Reactions are primitives. Parser rules are primitives. They all live in the same table and dispatch through the same mechanism.
+
+I used to write this as if it were a slogan. I have stopped writing it as a slogan because the implementation is now structured the way the slogan said it should be, and the structure is doing real work.
+
+What does it buy?
+
+**Code reuse.** The same machinery that schedules a vector op schedules a reaction body. The same machinery that registers a vector primitive registers a parser primitive. There is exactly one extension protocol. New subsystems are not new subsystems; they are new rows in the table.
+
+**Optimiser leverage.** Composing a parser with a reaction with a vector pipeline used to be three optimiser passes that did not talk to each other. They are now one rewrite over a uniform tree. Fusing a parse-then-aggregate is the same kind of move as fusing two map operations.
+
+**Operational consistency.** Profiling, tracing, error reporting, cancellation - they are all attached to the dispatch, not to the subsystem. When a reaction misbehaves I see the same trace shape I see when a vector op misbehaves. I do not maintain two debuggers.
+
+Concretely: in the kernel, the primitive registry is one struct. It has a couple of thousand entries. About half are vector ops, a quarter are reactions and reaction combinators, and a quarter are parser primitives and grammar combinators. The fact that the file is one file is the entire point.
+
+If I had to give up one idea from the last four years, it would not be this one.

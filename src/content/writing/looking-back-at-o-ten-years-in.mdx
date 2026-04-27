@@ -1,0 +1,22 @@
+---
+title: looking back at o, ten years in
+summary: ten years of theplatform. what i think now that i did not think then.
+publishedAt: 2025-11-15
+tags: [theplatform, o, retrospective]
+---
+
+I started this in early 2016. Almost ten years. I should write down what I think now that I did not think then.
+
+**The unification matters more than I argued.** I shipped the first version because I thought it was elegant. I keep it because it is the only thing that lets a small team operate the system. The second-order effects - one debugger, one trace format, one extension protocol - are bigger than the first-order effects.
+
+**Performance is a design property, not a tuning property.** The fast version of a primitive is the one that lives in the right crate, returns the right shape, and writes into the buffer the planner sized. I do not remember the last time I optimised a hot loop. I remember the times I changed a primitive's shape and the loop became fast.
+
+**K was right and I was right to take it seriously.** Not as a model to copy. As an existence proof that arity-classified vector evaluation is a thing that works. Every time I have drifted away from that line - and I have, repeatedly, mostly when chasing a feature that "users expect" - I have eventually drifted back. The line is where the wins are.
+
+**Join-calculus is harder to teach than to implement.** The reactor is a few thousand lines. The explanation that gets a new engineer to write a correct reaction takes weeks, sometimes months. I have stopped pretending this is a documentation problem; it is a paradigm problem, and paradigms cost time.
+
+**Embedded grammars were the right ergonomic bet.** Five years ago I would have ranked the three subsystems as concurrency, vectors, parsing. Today I would put parsing at the top in terms of how often it changes the team's productivity. Almost every new venue, every new feed, every new partner protocol, lands as a grammar diff.
+
+**The thing that surprised me most.** None of the ideas were new. K is forty years old. Join-calculus is from 1996. PEG is from 2004. What was new was insisting that they share a runtime. That part I did not borrow from anywhere, and that part is where the leverage came from.
+
+If I had to hand the system to someone today and tell them one thing, it would be: keep the table small. The day there are two extension protocols is the day the system stops being O and starts being something else.

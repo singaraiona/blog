@@ -1,0 +1,24 @@
+---
+title: five languages in six hundred lines
+summary: a small audit of every dsl currently embedded in o. a count that makes me worry i am cheating.
+publishedAt: 2024-06-08
+tags: [theplatform, parsing, peg, dsl]
+---
+
+A small audit of what is, today, embedded in O as a first-class DSL.
+
+I counted five. Each is a grammar plus a handful of reactions and primitives. Each fits in roughly a hundred and twenty lines, give or take.
+
+1. **FIX.** Tag-value financial messaging. Two grammars, one for incoming, one for outgoing. A reaction per message type. Total: a hundred and forty lines, including the venue dialect we cared about. Replaced eight thousand lines of generated Java.
+
+2. **FpML.** XML-shaped derivatives messaging. The grammar is uglier than I would like - XML always is - but it is forty lines of PEG plus the token rules. The reactions that consume FpML for trade enrichment are another sixty.
+
+3. **Avro.** Schema-driven binary records. The interesting bit here is that the schema is an O value at runtime; a grammar is generated from it on schema change. This is the part where "grammars are values" stops being theoretical.
+
+4. **HTTP.** Request line, headers, body with content-length splice. The example I keep showing. Forty lines of grammar, ten of routing.
+
+5. **A small SQL.** Selects, where, group-by, aggregates. Compiles to O verbs. Two hundred lines, more than I want, less than I expected. The O verbs already do most of the work; the grammar mostly translates.
+
+The total is a little under six hundred lines for five protocols. It is the kind of count that makes me worry I am cheating somewhere, so I checked: the line count is real, the protocols are not stripped, and the runtime cost is the same kernel everyone else uses. The reason it fits is not that O is concise - it is, but not by that factor. The reason is that there is no boundary between the grammar, the reaction, and the kernel. They are the same dispatch.
+
+I will keep the count and watch it. If we add a sixth protocol and the average line count holds, that is the strongest argument for the design that I have.

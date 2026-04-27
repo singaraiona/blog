@@ -1,0 +1,23 @@
+---
+title: starting in c, again
+summary: a year and a half of thinking. today the first file landed. block.c, one hundred and twenty lines, no dependencies.
+publishedAt: 2022-04-12
+tags: [rayforce, c, design]
+---
+
+A year and a half of thinking. Today I started.
+
+The first file is `block.c`. It is a hundred and twenty lines. It defines a column block: a header with type and length, and an aligned data region. There is one allocator function. There is one free function. There is no test yet. There is no language. There is barely a project.
+
+I am writing it in C because the entire point is the size of the linked artifact and the complexity of the toolchain to build it. Rust would be more pleasant in a hundred small ways and would cost me both of those. The version of this database I want to ship lives in someone else's binary. It cannot drag a Cargo workspace and a tokio runtime with it. C is the thing every embedded host already knows how to link.
+
+The discipline I have set for myself is one I learned in ThePlatform but did not enforce hard enough there:
+
+- One allocator. The whole runtime gets memory through it. No `malloc` outside of process startup.
+- One thread, until forced otherwise. Single-threaded code is debuggable.
+- One file per major concept. No headers full of unrelated declarations.
+- No third-party dependencies. Not even for hashing. Not even for time.
+
+I do not yet know if this is too austere. The point of going austere now is to find out where it breaks, before I have a user to apologise to.
+
+The repo is private. It will probably stay private for a few years. I am writing this for myself.

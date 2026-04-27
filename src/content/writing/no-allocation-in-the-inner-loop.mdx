@@ -1,0 +1,23 @@
+---
+title: no allocation in the inner loop
+summary: the only discipline that has stayed put after a year of writing the o kernel.
+publishedAt: 2017-09-05
+tags: [theplatform, performance, rust]
+---
+
+The discipline I have ended up with, after a year of writing the kernel, is shorter than I expected.
+
+Do not allocate in the inner loop.
+
+That is more or less it. Everything else - SIMD width, branch density, layout choice - either falls out of that rule or stops mattering when you obey it. The places where my code is slow are always places where I forgot, never places where I picked the wrong intrinsic.
+
+Concretely, in the O kernel:
+
+- Output buffers are pre-sized by the planner. The planner knows the shapes; it owns the allocations. The kernel writes into provided slices.
+- Temporaries inside a primitive are stack-resident or come from a thread-local scratch arena that is reset between operators. No `Vec::with_capacity` in a hot path.
+- Strings are not in the hot path. If they are, they are interned to small ints upstream and the kernel sees the int.
+- Errors are out-of-band. The hot path has no `Result` unwinding. A failing kernel sets a flag in the task's status word.
+
+None of this is novel. People who wrote DSP kernels in the nineties knew it. People writing JIT-compiled query engines today still know it. What is interesting is how much language work is needed to make a runtime that lets you keep writing in this style without it becoming hand-rolled C in disguise. The Rust borrow checker is a help here more often than a hindrance, but only because the kernel is small enough to fit one head.
+
+When I get tempted to allocate inside a primitive, I picture a profiler. It is usually enough.

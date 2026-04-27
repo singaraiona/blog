@@ -1,0 +1,28 @@
+---
+title: the day rayforce opened
+summary: five years of thinking, two and a half years of private commits. today rayforce is open source.
+publishedAt: 2025-11-26
+tags: [rayforce, milestone]
+---
+
+Today I deployed the website, the docs, the VS Code extension, the WASM SDK, and the public repo. After two and a half years of private commits and five years of thinking about it, rayforce is open.
+
+It is a strange day. The artifact is not new to me. It has been my main project for years. But everyone else has just met it. Every download counter that goes up is, in effect, a new pair of eyes. I am going to be re-explaining a lot of decisions over the next few weeks, and I am going to be re-defending some of them, and I am going to find out which ones were wrong.
+
+The launch is technically uneventful, which is the point. Months of writing the documentation, smoothing the install script, freezing the C ABI, writing the language reference. None of that work shows in a single commit. It shows in the fact that nothing exploded today.
+
+A short list of what is on the table tonight:
+
+- The C library, single static binary, under one and a half megabytes on every platform I support.
+- The CLI and REPL.
+- A Python ORM as the primary public binding.
+- A WASM SDK for the browser, with zero-copy vector views. WASM does not autovectorise the way native does, and I have written that limitation honestly into the docs.
+- A VS Code extension with syntax highlighting and a connected REPL.
+- A documentation site, with a tutorial, a Rayfall reference, and benchmark pages.
+- A small website that says what the thing is in two paragraphs.
+
+The framing I am going with publicly is the one that is true: a columnar database in pure C, sponsored by Lynx, with a Lisp-shaped query language to lower the entry barrier for people who never wrote K. I want the first people who find it to find a database and not a manifesto.
+
+What is not on the table: a marketing campaign, a viral post, a launch tweet of my own. A colleague at Lynx posted the announcement on LinkedIn this afternoon. That is plenty. The next people to find it will find it because they were already looking for it, or because someone they trust said the words. That is the kind of audience I want first.
+
+One milestone, no ceremony. Tomorrow I am back to commits.

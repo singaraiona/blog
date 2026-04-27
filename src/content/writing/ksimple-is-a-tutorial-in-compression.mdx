@@ -1,0 +1,20 @@
+---
+title: ksimple is a tutorial in compression
+summary: a week reading kparc's annotated minimal k. two ideas i stole and one i did not.
+publishedAt: 2024-07-11
+tags: [rayforce, rayfall, kdb]
+---
+
+Spent the week reading ksimple - kparc's annotated minimal K interpreter. About a hundred commits in. It is the cleanest exposition of how a vector language is implemented that I have ever seen, and I have read more of these than is healthy.
+
+Two things I keep noticing.
+
+**The whole interpreter is a few thousand bytes of source.** Not because the author cleverised it. Because every primitive in K is a function over types and the dispatch table is the program. Nine tenths of what most language implementations do - parsing structure, scope chains, type unification, error narratives - K either does not need or does in a few characters. The interpreter is short because the language was designed so the interpreter could be short.
+
+**Compression is a tool, not a vice.** A `for` loop in ksimple is one character with a side effect of advancing an index. A type tag is one byte. A null check is a comparison against a magic value. None of this is unreadable; it is readable in the way that a circuit diagram is readable, once you know the symbols. The cost is the symbol table you carry in your head. The reward is that the program fits in your head all at once.
+
+I will not write Rayfall like ksimple. I have already explained why. But I have stolen two ideas from this week of reading.
+
+The first is that the dispatch table for Rayfall primitives should be a single contiguous array indexed by `(arity << 16) | id`, not a tree of structs. The second is that null handling should be inline in the kernel, not a wrapper around it. Both make the code shorter; both, I checked, also make it faster.
+
+I owe a debt to ksimple for nudging me back to compactness. Rayfall is verbose where the user reads it and short where the CPU runs it.

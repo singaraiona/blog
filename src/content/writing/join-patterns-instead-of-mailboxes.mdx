@@ -1,0 +1,33 @@
+---
+title: join patterns instead of mailboxes
+summary: the first reactor is in. three things this gets you that an actor mailbox does not.
+publishedAt: 2020-03-17
+tags: [theplatform, concurrency, join-calculus]
+---
+
+The first version of the reactor is in. It is small enough to fit in a screen, and that is the part I want to keep.
+
+A reaction in O has two sides: a pattern and a body. The pattern is a tuple of channel names with binders. The body is a piece of O. The runtime picks reactions whose patterns are simultaneously satisfied by values present in the relevant channels and fires them. Atomically. Once.
+
+```
+react (orders ?o, quotes ?q) when o.sym == q.sym:
+    fill o at q.price
+```
+
+Three things this gets you that an actor mailbox does not.
+
+## multi-channel matching is not your problem
+
+With a mailbox, you reach into a queue and pull the next message. To match across queues you serialise yourself through one of them. With join patterns, the runtime does the multi-way matching. The body sees a tuple of values that are guaranteed-consistent at fire time.
+
+## the body is where the consistency lives
+
+Reactions do not commit by sequence number. They commit by pattern match. If two reactions are eligible, the runtime serialises them, but the body never sees a partial state.
+
+## dead code is dead
+
+A reaction that has no pattern match is not running, not blocked, not consuming a thread. The reactor's cost scales with the active patterns, not with the population of declared reactions.
+
+Inside the implementation, the patterns share a join graph that is itself a small column store. The values live in arrays. Matching is a vector op. This is the place where the unification stops being aesthetic: the reactor is using the same kernels as the query engine, because they are the same operations.
+
+It took me six months to believe the trick worked. It took two days to write it once I did.

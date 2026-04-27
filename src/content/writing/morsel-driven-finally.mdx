@@ -1,0 +1,22 @@
+---
+title: morsel-driven, finally
+summary: rayforce2 with the teide pipeline running underneath the rayfall vm. three things change. one of them surprised me.
+publishedAt: 2026-03-12
+tags: [rayforce2, performance, execution]
+---
+
+The first week of rayforce2 with the Teide execution model running underneath the Rayfall VM. I want to write down what changed in the kernels, and why I did not do this in rayforce.
+
+A morsel is a slice of a column. In rayforce2 it is fixed at one thousand and twenty-four elements, chosen because it is the largest size that, on every machine I care about, fits all the working data of every primitive in L2. Every kernel takes morsels in and produces morsels out. There is no scalar fallback path. There is no "and the last partial morsel" path; the partial is its own morsel, it just has fewer elements.
+
+Three things change.
+
+**The pipeline becomes fusable.** Two primitives that produce and consume the same morsel can be fused into one loop without materialising the intermediate. The query optimiser does this rewrite during DAG construction. The result is a hot loop that does both operations in registers; the morsel is stable in L1 across the fusion.
+
+**Cancellation becomes tractable.** A long query is a chain of morsels. Cancelling the query is "stop calling next-morsel". There is no inflight state that has to be unwound, because the state lives between morsels. Implementing query timeout went from a sketchy thread-state machine in rayforce to a five-line check in rayforce2.
+
+**Profiling is meaningful.** I can attribute time to morsels rather than to function calls. A primitive that is slow is slow because its morsel is slow. The flame graph is one level shallower and one level more honest.
+
+The reason I did not do this in rayforce is that rayforce had, by the time I knew it was the right answer, a hundred kernels that did not assume morsel boundaries. Rewriting them in place would have been a year of incremental breakage. Starting fresh with the rule baked in - no scalar path, no edge cases - took six weeks.
+
+I am not as good as I would like to be at predicting which decisions will look like this. The decisions whose absence is invisible at month one and unfixable at year three. I will keep writing them down when I see them in retrospect.

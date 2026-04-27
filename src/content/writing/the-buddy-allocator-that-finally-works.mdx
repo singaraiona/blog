@@ -1,0 +1,27 @@
+---
+title: the buddy allocator that finally works
+summary: three rewrites this year. the third one is the keeper. about ninety percent of small allocations now hit the slab cache.
+publishedAt: 2024-12-04
+tags: [rayforce, c, performance, allocator]
+---
+
+The allocator went through three rewrites this year. The third one is the one I will keep.
+
+The first version was a slab cache with a freelist per size class. It was fast on small allocations and terrible on the ones bigger than the largest slab; the fallback path was a `malloc` and that was the end of "no malloc in the runtime". Out.
+
+The second version was a single arena with a bump pointer and a single reset point per query. It was very fast on reads and unusable as soon as a query had any interleaved allocation lifetime. Out.
+
+The third version is a buddy allocator with a slab cache in front of it. Small allocations - which is most of them - hit the slab cache. The cache hit rate, measured over the test suite, is around ninety percent. The buddy underneath handles the rest, including the large ones the slab cache cannot serve. Both are backed by a fixed-size memory pool that the application sizes at startup. There is no `malloc`.
+
+```
+alloc(n):
+    if n <= SLAB_MAX:
+        bucket = size_class(n)
+        if not empty(slab[bucket]):
+            return pop(slab[bucket])
+    return buddy_alloc(round_up_pow2(n))
+```
+
+What took me three rewrites is not the data structure. It is the discipline of holding the allocator behind a single function pointer that everything in the runtime calls. Once that pointer was the only entry, swapping the implementation became a one-line change. Before that, six different parts of the kernel were calling six different allocators "for now", and "for now" had been six months.
+
+I do not enjoy writing allocators. They are the kind of code that is invisible when right and very visible when wrong.

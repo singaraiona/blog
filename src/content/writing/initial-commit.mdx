@@ -1,0 +1,22 @@
+---
+title: initial commit
+summary: the rayforce repo went on disk today. five hundred lines, no dependencies, one passing test.
+publishedAt: 2023-02-22
+tags: [rayforce, c]
+---
+
+The repo had its initial commit today. I have been writing notes for two and a half years. I have been writing code on and off for ten months. Today I made it a real thing on disk with a name.
+
+`git log` will show one line:
+
+```
+2023-02-22 initial commit
+```
+
+The contents of that commit are unimpressive on purpose. A `Makefile` that builds one object file. A `block.c`. A `block.h`. A `test.c` with three asserts. The whole repo is under five hundred lines.
+
+What I am proud of in this commit, if "proud" is the right word for an empty repo, is what is not in it. There is no `vendor/` directory. There is no `third_party/`. There is no logging library. There is no error-handling framework. There is no language yet, no parser, no REPL.
+
+What it does have is a column block that holds typed data, a buddy allocator that hands out aligned regions, and a single test that round-trips an integer column. That is enough. The next commit can be a second test. The commit after that can be a second column type. The commit after that can be a kernel.
+
+The thing I keep telling myself, and will keep telling myself when I am tempted to add a dependency, is that the most expensive code in any project is the code you did not write. The library you take is forever yours to debug, regardless of who wrote it. So I am writing it.

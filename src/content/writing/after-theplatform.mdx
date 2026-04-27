@@ -1,0 +1,16 @@
+---
+title: after theplatform
+summary: four years in production. an embeddable, smaller, c-shaped sibling has been quietly forming.
+publishedAt: 2020-09-15
+tags: [rayforce, theplatform, design]
+---
+
+ThePlatform has been in production at Lynx for four years. The thing that surprises me is not how well it works - it works fine - but how often I want to put a smaller version of it on someone else's machine.
+
+Every couple of months I get the same conversation. A trading desk, an internal team, a partner. They have a stream of data, they want to query it the way our team queries it, and they cannot install ThePlatform. Not because it is closed source, but because it is a Rust project with a kernel and a tokio runtime and a vector store, and to use it you basically inherit a small operating system. It does not embed. It is a server.
+
+I think the next thing I want to write is the opposite of that. A library. Pure C. Single binary, ideally under a megabyte. No runtime to inherit. You link it, you call into it, you get vectors back. It runs in the calling thread or it does not run at all.
+
+This is not a competitor to ThePlatform. ThePlatform stays. ThePlatform is the right shape for the place it lives. The thing I want is a smaller, embeddable thing that takes the same vector evaluation principles and removes everything else. No language at first. No reactor. No grammars. Just columns, kernels, and a way to ask for a result.
+
+I have a name picked: RayforceDB. The query language, when there is one, will be something Lisp-shaped called Rayfall. Beyond that, no code. I am giving myself permission to think about this for a year before I write any.

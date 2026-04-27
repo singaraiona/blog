@@ -1,0 +1,20 @@
+---
+title: channels are not enough
+summary: select-and-pray works until you need a transaction across two channels. why the reaction has to be the unit.
+publishedAt: 2019-08-30
+tags: [theplatform, concurrency, design]
+---
+
+Channels are pleasant until you need two of them at once.
+
+The textbook concurrency model in modern systems is: tasks own state, channels carry messages, a select picks the first channel that has something. It scales beautifully up to the point where you need a transaction across two channels. Then the cracks open.
+
+Say I have an order channel and a market-data channel, and I want a reaction that fires when both have a value addressed to the same instrument. With select, I drain one, hold it, drain the other, check it matches, retry if not. While I am holding the order, no one else can see it. While I am retrying, the market data has moved.
+
+The right answer is not "lock harder". The right answer is that the reaction is the unit, not the channel read. I want to write: "when there is an order O and a quote Q with O.symbol == Q.symbol, fire this body". The runtime should be the one that finds those values, atomically, in some pool, without me coordinating two reads and a compare.
+
+That is what join-calculus gives. The body is the atomic unit. The pattern is the join. The matching is the runtime's job. Order-of-arrival becomes irrelevant; if a quote was here ten milliseconds ago and an order arrives now, the runtime fires the join. No retries, no held messages, no select-and-pray.
+
+I have spent the last few months writing this on top of tokio and discovering, slowly, that tokio is not in the way; what is in the way is my reflexive habit of writing select-and-then-check. Once the reaction is the unit, the code shrinks by a factor I did not believe before I saw it.
+
+I will write more on this when the implementation stops embarrassing me.

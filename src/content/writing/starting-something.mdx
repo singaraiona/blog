@@ -1,0 +1,20 @@
+---
+title: starting something
+summary: kicking off theplatform - a new system, a small language, and three ideas to fit into one runtime.
+publishedAt: 2016-03-14
+tags: [theplatform, design]
+---
+
+Today I started something. The working name is "the platform". The goal is small but the scope is honestly not - a system for collecting, processing, and analyzing time-sequential data, written from the ground up around the only data shape that ever pays off in this domain: the column.
+
+I have spent the last few years inside row-shaped systems pretending to be column-shaped. They are not the same thing. A row store with a columnar reader bolted on top is still a row store. The interesting performance work happens in the layout, the dispatch, and the language used to describe the work. Get any one of those wrong and the rest does not save you.
+
+The plan, roughly:
+
+- A vector engine in Rust. Columnar from the first byte.
+- A small language on top, in the K/APL line, with arity-classified primitives. No loops. Verbs.
+- A runtime that treats concurrency the way a database treats transactions, not the way a server treats threads.
+
+I do not want to ship a library that competes with kdb+ on its own ground. I want to take three ideas - vector evaluation, join-calculus, embedded grammars - and try to fit them into one runtime where they stop being separate ideas. They are all forms of the same dispatch, if you squint hard enough.
+
+Whether that conviction survives the next year of writing C-grade Rust we will see. For now, a repo, a name, and a list of things to delete from my head.

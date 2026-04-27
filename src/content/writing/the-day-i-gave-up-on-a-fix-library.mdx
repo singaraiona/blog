@@ -1,0 +1,18 @@
+---
+title: the day i gave up on a fix library
+summary: eight thousand lines of generated java, replaced by one hundred and forty lines of o. why grammars belong inline.
+publishedAt: 2018-04-11
+tags: [theplatform, parsing, fix]
+---
+
+Yesterday I deleted the FIX parsing dependency. Today I am parsing FIX in two screens of O.
+
+For people who do not work in finance: FIX is the wire protocol every trading desk speaks. It is tag=value pairs separated by SOH, with a length prefix, a checksum, and, in practice, twenty venue-specific dialects for every nominal version of the spec. Library quality varies. Library cost is high. Library opinions about what your message looks like are non-negotiable, and the venues' opinions are also non-negotiable, and they disagree.
+
+The library I had been using was eight thousand lines and it could not parse the venue I cared about. It could parse a strict reading of FIX 4.4. The venue was not strict. The venue had two extra repeating-group fields and a tag that the spec said was a string but which they treated as binary. So I had to subclass, and the library did not support subclassing the lexer; you had to fork the schema build step, and the schema build step was a separate Maven project I had pretended did not exist.
+
+I gave up at the moment I realised I was reading the library's README to figure out how to express what the venue had described in a paragraph.
+
+A grammar is a value. Once you accept that, you stop reaching for libraries that bake their grammar into compile time. You write the grammar inline next to the consumer. When the venue changes a tag, you change a line. The grammar is in the same file as the reaction that fires on the parsed message. It compiles together. It deploys together.
+
+The eight thousand lines is now a hundred and forty. It is also faster, but that is not why I did it.

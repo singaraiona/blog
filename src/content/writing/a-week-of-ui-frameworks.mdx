@@ -1,0 +1,22 @@
+---
+title: a week of ui frameworks
+summary: seven days, four desktop ui frameworks, one survivor. a database engineer's notes on temporary unfaithfulness.
+publishedAt: 2026-01-28
+tags: [rayforce, ui, retrospective]
+---
+
+The last seven days I rewrote the rayforce desktop UI four times. It is unflattering and worth writing down.
+
+The motivation was simple. The WASM browser SDK is good for embedding into any web page, but a real analyst wants a desktop application with native performance, native file dialogs, and a stable window. I decided to write one. Then I decided to write four.
+
+**Day one to three: Tauri + React.** The most popular desktop-and-web combination right now. Wrote a working dashboard with table viewer, query editor, and chart panel. Functional. The build was two hundred megabytes of node_modules and the dev experience was a JavaScript stack on top of a Rust shell. The thing worked. I did not enjoy any minute of it.
+
+**Day four: Floem.** Rust reactive UI in a single crate. I had read the docs for an evening months ago and wanted to give it a real day. Built the table viewer. The framework is good. It is also single-author and a moving target, and I kept finding edges that needed me to write Floem rather than write my application. Closed the laptop.
+
+**Day four, evening: Iced.** Five commits, less than an hour. Spawned a window. Rendered a table. Realised I would be writing Iced's layout engine for any nontrivial dashboard. Closed.
+
+**Day five onwards: C++ with a custom widget set.** This is the one that stuck. About a thousand lines of C++ for the framework, which I now own; another two thousand for the application. The application starts in twenty milliseconds. The binary is six megabytes total. I link it against rayforce directly and there is no IPC.
+
+I am a database engineer who was, for a week, a UI engineer. The lesson is the lesson I keep relearning: when the stack does not match the discipline, no amount of framework convenience makes up for the impedance. C is not a UI language. C++ with a small widget set is, in my hands, the path of least friction for a UI that ships next to a database that is also written in C.
+
+The Tauri prototype lives in a branch. The Floem and Iced ones I will keep around for one quarter and then delete.

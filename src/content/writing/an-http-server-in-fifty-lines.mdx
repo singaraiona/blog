@@ -1,0 +1,38 @@
+---
+title: an http server in fifty lines
+summary: composing a tcp listener, a peg grammar, and a reaction across subsystem lines.
+publishedAt: 2021-05-26
+tags: [theplatform, o, parsing, concurrency]
+---
+
+The point of the unification is that you can compose things across subsystem lines without paying for the boundary.
+
+Here is an HTTP server in O. It is fifty lines including blanks. It is not a toy, in the sense that it parses real-world request lines and headers and routes to handler reactions. It is a toy in the sense that it does not implement chunked transfer or websockets, but those are also reactions on the same socket, so the shape would not change.
+
+```
+listener: tcp.accept "0.0.0.0:8080"
+
+request: peg `
+    line     := method " " path " " version crlf
+    headers  := (header crlf)*
+    header   := name ":" sp* value
+    body     := @(content_length) bytes
+    request  := line headers crlf body
+`
+
+react (listener ?conn):
+    react (conn.bytes ?b) when match request b => req:
+        route req.method req.path conn
+
+route "GET" "/health" conn:
+    conn.send "HTTP/1.1 200 OK\r\n\r\nok"
+
+route m p conn:
+    conn.send "HTTP/1.1 404 Not Found\r\n\r\n"
+```
+
+A few things to notice. The grammar is a value next to the code that uses it. The `@(content_length)` splice reads a header value and passes it back to the parser as the byte count for the body rule. The `react` blocks nest because reactions are composable; the outer one fires when a connection arrives, the inner one fires when bytes on that connection match the request grammar. The router is a reaction whose pattern is two scalar matches.
+
+What is not in this code is the boundary. There is no parser library being called from a reaction handler. There is no socket abstraction being driven by an event loop being driven by an actor system. There is one runtime, and one dispatch, and three things that happen to be reactions, parsers, and sockets.
+
+That is the demo I should have written four years ago. It would have saved a lot of explaining.

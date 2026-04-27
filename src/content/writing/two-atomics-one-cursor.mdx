@@ -1,0 +1,25 @@
+---
+title: two atomics, one cursor
+summary: the head-tail rewrite. one flag bit makes the difference between "spin once and recover" and "lock to be safe". 0.2.5 ships tonight.
+publishedAt: 2022-08-30
+tags: [hyperbridge, rust, concurrency, atomics]
+---
+
+A design rewrite that took a month and ships today as 0.2.5.
+
+The original hyperbridge layout had one atomic each for head and tail, plus a flag word for state. That works, and was correct, but had two costs. First, head and tail being independent meant the producer and consumer were touching cache lines that ping-ponged whenever both were busy. Second, recovering from a head-overtake-tail bug - which happens under contention if you are not very careful - required a third atomic acting as a fence.
+
+The rewrite fits both head and tail into two atomics, with the cursor information packed in a way that producer and consumer can validate the other's position in one read. The schema looks roughly like this:
+
+```rust
+struct Cursor {
+    head: AtomicU64, // [block_index : 32 | slot : 31 | flag : 1]
+    tail: AtomicU64, // [block_index : 32 | slot : 31 | flag : 1]
+}
+```
+
+The flag bit is not glamorous. It is the bit that lets the consumer know whether the slot it just read was the slot the producer last wrote, or a stale value from the previous epoch. That bit is the difference between "spin once and recover" and "lock to be safe".
+
+The rule that kept me sane during this rewrite was: "do not allow head overtake tail". It is one line in the spec, two pages of edge cases in the implementation, and exactly one assertion in the tests. Every time I broke it, the tests caught it within a minute.
+
+0.2.5 is on crates.io tonight. I am not going to push more on this crate for a while. It does what it set out to do, and the API has been stable across three minor versions. There is a moment in any library's life where the right thing is to leave it alone. I think this one is there.

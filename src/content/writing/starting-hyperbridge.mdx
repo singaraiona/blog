@@ -1,0 +1,22 @@
+---
+title: starting hyperbridge
+summary: i needed an mpmc channel with async support. crossbeam covers the mpmc; nothing covers both. so i wrote my own.
+publishedAt: 2021-11-17
+tags: [hyperbridge, rust, concurrency]
+---
+
+I needed an MPMC channel with async support, last week, in a Rust project I do not have permission to talk about. crossbeam-channel has the MPMC unbounded channel I wanted but no async surface; tokio's mpsc has async but is single-consumer. flume is close on paper and worked on benches I do not believe. So I spent the weekend writing my own. Today I open-sourced it.
+
+The crate is called hyperbridge. The README is two paragraphs and the benchmark file is in the initial commit. That is on purpose: I do not want to publish a channel implementation people have to take on faith. If you do not believe my numbers you can run them.
+
+The shape is the obvious one. A lock-free unbounded channel built around a linked list of fixed-size blocks, atomic head and tail, MPSC and MPMC by feature. Async support comes through a small wrapper that exposes futures Sink and Stream. There are no third-party dependencies in the core; the futures support is behind a feature flag.
+
+What I am explicitly trying to avoid:
+
+- Hidden allocations in the hot path. The block size is large enough that allocation happens rarely; the inline cursor is one atomic.
+- Lock contention on the slow path. Spinning is fine; locking is not. The channel never takes a mutex.
+- Unsafe blocks without comments. There are unsafe blocks. They are commented one for one.
+
+Inspired by crossbeam's unbounded channel; not a reimplementation of it. The thing I want that crossbeam does not give me is the futures surface, and the path of least resistance for that turned out to be a separate crate rather than a fork.
+
+Today's commit log is short. README. Benches. Initial implementation. 0.1.0 is on crates.io. Let us see who finds it.

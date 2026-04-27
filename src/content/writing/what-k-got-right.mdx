@@ -1,0 +1,26 @@
+---
+title: what k got right
+summary: three months in. why a half-century-old idea still embarrasses the systems that came after it.
+publishedAt: 2016-06-22
+tags: [theplatform, kdb, vectors, design]
+---
+
+Three months in. Most of my time has gone into reading kdb+'s footprints and asking which of them I want to walk in.
+
+K is fifty years old now if you count APL as its parent, twenty-three if you count K1. Either way it is older than most of the languages it embarrasses on benchmarks. There is a reason. Three reasons, really.
+
+## the whole language is closed under one shape
+
+Atom, vector, dictionary. Every primitive accepts those, returns those. There is no impedance mismatch between the data and the operators. When I read a pandas trace I see ten conversions per query. K has none.
+
+## the dispatch is arity, not type
+
+The same symbol means different things at one and two arguments. That sounds like a parser trick until you build a runtime around it. Then it stops being a trick and starts being the only sensible way to schedule work. A monadic primitive is a kernel over a column. A dyadic primitive is a kernel over two columns. A triadic primitive is a join. The query plan writes itself.
+
+## loops are not in the language
+
+Not because the implementor was lazy. Because once you commit to vector evaluation, the loop is the wrong unit. The loop is one decision per element. The vector is one decision per run.
+
+What the mainstream missed is that this is not nostalgia and it is not a hardware story. It is a software-engineering story. K's compactness comes from the fact that it has very few decisions left to make at the call site. The decisions live in the operator table.
+
+I will not write K. I will write something that owes K a debt.

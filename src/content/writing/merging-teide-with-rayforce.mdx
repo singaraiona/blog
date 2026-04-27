@@ -1,0 +1,20 @@
+---
+title: merging teide with rayforce
+summary: the parallel research project and the production system are now one repo. keeping the language. swapping the engine.
+publishedAt: 2026-02-20
+tags: [rayforce, rayforce2, teidedb, architecture]
+---
+
+Teide was the parallel research project. Rayforce was the production system. Today they are one repo.
+
+Teide started as a clean C17 columnar dataframe engine with a different lineage. It was where I tried things rayforce was too committed to try: a different execution model (morsel-driven, no scalar fallback), a different optimiser (multi-pass DAG), graph storage as a first-class column type, COW everywhere. By late 2025, Teide had three things rayforce did not, and rayforce had two things Teide did not.
+
+Rayforce had: the language. The Rayfall VM. Two and a half years of library hardening, a stable C ABI, a Python binding, a WASM SDK, and a community of users that, while small, was real. The optimiser was a little dumb but the surface was real.
+
+Teide had: a better execution model and a graph engine that did not exist anywhere else I trusted. A morsel pipeline that ran twenty percent faster than rayforce on the queries we both ran. CSR-stored columns that let us do graph traversal as a fused DAG operation.
+
+The decision was to keep rayforce's surface and Teide's engine. The new repo - rayforce2 - was created with Teide's source tree as the initial commit. The first month is being spent porting the Rayfall VM into it and making the language compile down to Teide's DAG.
+
+This is the kind of decision that, written down, sounds clean. Living it is messier. There are weeks of API carve-out ahead. Three of the rayforce primitives have to be rewritten for the new execution model. The Python binding has to learn a different memory model. The website has to be revised to not lie about what is underneath.
+
+What I get from the merge, if I get it, is one system that has the language people can already use and the engine I have always wanted. What I lose is the comfort of two separate projects, neither of which had to know about the other. That comfort was always going to end. It is ending today.

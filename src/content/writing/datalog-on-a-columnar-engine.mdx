@@ -1,0 +1,29 @@
+---
+title: datalog on a columnar engine
+summary: a new query surface landed this week. small, semi-naive, and shaped exactly like the rest of the dag.
+publishedAt: 2026-04-22
+tags: [rayforce2, datalog, query-language]
+---
+
+A new query surface landed in rayforce2 this week. It is small and it is going to surprise people.
+
+Datalog. Rules and queries over EAV triples, evaluated semi-naively to fixpoint. It is two hundred lines of Rayfall plus a handful of new opcodes in the engine. It runs alongside the SQL-shaped surface, shares the optimiser, shares the storage. It is also, in my testing, the cleanest way to express graph queries we have ever had.
+
+```
+(rule (path ?a ?b)
+      (edge ?a ?b))
+
+(rule (path ?a ?c)
+      (path ?a ?b)
+      (edge ?b ?c))
+
+(query (path :alice ?x))
+```
+
+This compiles into a DAG over the same morsel-driven pipeline as everything else. The fixpoint is a loop around the DAG. The semi-naive optimisation - only re-deriving from facts new in the previous iteration - is a single new opcode (`OP_ANTIJOIN` against the prior iteration's results). The total addition was small because the engine was already most of what Datalog needs.
+
+This is the moment that is going to make me look smart and is in fact a coincidence of the rewrite. The morsel pipeline, the DAG optimiser, the CSR graph columns - they were all built for different reasons. Datalog walks in and finds them all useful. The semi-naive evaluation maps onto morsel-driven execution naturally because the working set of the previous iteration is exactly a morsel-shaped column. The DAG optimiser fuses rule bodies. The CSR storage makes recursive joins fast.
+
+I did not see this coming when I planned the merge. I planned the merge to get the language and the engine into one place. The fact that the place also happens to be the right shape for a third paradigm is the kind of payoff you cannot promise in advance and cannot fake when it shows up.
+
+I am going to write more about Datalog and rayforce2 over the next few months. There is a good chance it ends up the way most users meet the system, even if it is not the way most users came in.

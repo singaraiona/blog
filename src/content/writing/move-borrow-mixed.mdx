@@ -1,0 +1,31 @@
+---
+title: move, borrow, mixed
+summary: three laziness modes for join reactions. the smallest design choice that paid off the most.
+publishedAt: 2022-07-12
+tags: [theplatform, concurrency, design]
+---
+
+A reaction matches a tuple of values from a tuple of channels. What happens to those values when the body fires?
+
+Three reasonable answers, all of which I needed in production code, and none of which I want to commit to once and for all at language-design time.
+
+**Move.** The body consumes the matched values. They are gone from the channels when the body returns. This is the default. It is what you want for orders, for messages that should be processed once, for anything where double-handling is a bug.
+
+**Borrow.** The body sees the values but does not consume them. They remain in their channels for other reactions to match. This is what you want for reference data: a quote that should drive ten different reactions, a snapshot that should be peeked but not popped.
+
+**Mixed.** Some bound names are moved, others are borrowed. This is what most real reactions need once they grow up. The order is consumed; the quote is borrowed; the body sees both.
+
+The syntax in O is per-binder:
+
+```
+react (orders ?o, quotes &q) when o.sym == q.sym:
+    fill o at q.price
+```
+
+`?` is move, `&` is borrow. A reaction is mixed when it has both.
+
+This sounds like a small thing. It is not. The biggest source of correctness bugs in the first reactor was reactions that wanted to peek but were forced to pop, leading to do-not-actually-pop guards in the body. Those guards were the worst kind of code: stateful, racy, and superficially obvious. Promoting peek vs pop into a binder discipline turned them into deletes.
+
+The runtime cost is also real. Borrowed bindings do not have to be relocked across the body; they are still in the channel, the channel still owns them, the body sees a read-only view. Move bindings get the consume path. Mixed reactions get a small amount of bookkeeping but no surprises.
+
+I should have written it this way the first time. I knew, vaguely, that I would need it. I did not believe it enough to design for it. Two years and several incident reports later, I do.

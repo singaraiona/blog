@@ -1,0 +1,16 @@
+---
+title: vec<f64> over a row of structs
+summary: a layout note I keep having to reread. why columnar wins by 10x once two passes are involved.
+publishedAt: 2017-02-19
+tags: [theplatform, performance, vectors]
+---
+
+A note I keep having to reread.
+
+A `Vec<f64>` of length N takes 8N bytes plus a fat-pointer header. It fits in a cache line every eight elements. A SIMD register eats it four-at-a-time on AVX2, eight-at-a-time on AVX-512. The hardware was built for this layout. The compiler will autovectorise the obvious loops without help.
+
+A `Vec<{ price: f64, qty: f64, ts: i64 }>` of length N takes 24N bytes. The same SIMD register now sees one element where it used to see four. The same cache line sees two elements where it used to see eight. To compute `sum(price)` you pull in `qty` and `ts` for free, every time. They are not free. They are the bandwidth you do not have for the work you wanted to do.
+
+This is not a 2x story. With column layout the inner loop is one tight `vaddpd` or `vfmadd231pd` and a stride-1 walk. With row-of-struct layout you also pay scatter cost on writes if you ever produce a new column from a transformation. By the time you have done two scans, three filters, and a join, the difference is closer to 10x and shows up as wall-clock, not microbenchmarks.
+
+I bring this up because every couple of months a reasonable person looks at my schema and asks why I do not just use `Vec<Trade>`. The answer is: I would, if I never planned to do anything with it. The moment a column gets read on its own - once - the row layout has lost.

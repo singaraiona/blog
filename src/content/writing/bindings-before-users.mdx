@@ -1,0 +1,20 @@
+---
+title: bindings before users
+summary: the repo is still private. i am writing the python orm anyway. it is the cheapest way to find out which parts of the c api are wrong.
+publishedAt: 2025-04-18
+tags: [rayforce, python, api, design]
+---
+
+The repo is still private. I am writing the Python binding anyway.
+
+This sounds backwards. It is not. Writing a binding before there are users is the cheapest way to find out which parts of the public API are wrong. The C API is the whole interface, and the C API is currently shaped like the internals because nobody has had to use it from outside. The Python binding is the first outside.
+
+I am writing it as an ORM, not a function-by-function wrapper. That is also a deliberate choice. A wrapper exposes the C calls and lets the user assemble queries in Python; an ORM exposes objects and methods and converts them to queries. The wrapper shape would have been faster to build and would have looked, from inside the language, like Python code wandering through a foreign API. The ORM forces me to answer "what is this database, in idiomatic Python", and the answer is a useful constraint on the C API itself.
+
+A few examples of things the binding caught:
+
+- The C API was using a string-typed handle for tables and an integer-typed handle for columns. There was no reason for the asymmetry. Both are now integer handles.
+- Errors were a return code on every call. The Python wrapper rejected this and demanded exceptions. The C API now also exposes a thread-local error info struct, which is what a long-form error message should be in either language.
+- The query builder, in Python, made it obvious that filter and project are commutative when no aggregation has happened. That commutativity is now an optimiser pass in the engine.
+
+The repo is still private. The binding is still an exercise. The exercise is doing what it was supposed to.
