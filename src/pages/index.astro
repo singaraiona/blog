@@ -104,6 +104,7 @@ const links = [
   },
   { label: "reddit", href: "https://www.reddit.com/user/het0ku/" },
   { label: "email", href: "mailto:anton.kundenko@gmail.com" },
+  { label: "cv", href: "/resume.pdf" },
 ];
 ---
 
@@ -134,14 +135,19 @@ const links = [
         ))}
       </div>
     </div>
-    <img
-      src="/avatar.png"
-      alt="Anton Kundenko"
-      width="120"
-      height="160"
-      class="avatar"
-      loading="eager"
-    />
+    <picture>
+      <source srcset="/avatar.webp" type="image/webp" />
+      <img
+        src="/avatar.png"
+        alt="Anton Kundenko"
+        width="120"
+        height="160"
+        class="avatar"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
   </section>
 
   <Section title="writing" href="/writing" rightLabel="all posts">
