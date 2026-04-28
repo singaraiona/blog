@@ -1,6 +1,6 @@
-# CLAUDE.md - hetoku.com
+# CLAUDE.md - anton.kundenko.dev
 
-Personal website + blog for Anton Kundenko. Read this before doing anything in this repo.
+Personal website + blog for Anton Kundenko (deployed at anton.kundenko.dev; the legacy hetoku.com host 301-redirects here). Read this before doing anything in this repo.
 
 ## Hard rules (non-negotiable)
 
@@ -68,7 +68,7 @@ src/
 public/
   avatar.png             - profile photo, 552KB (sourced from ../../cv/avatar.png)
   resume.pdf             - CV PDF, 992KB (sourced from ../../cv/anton_kundenko_cv.pdf)
-  CNAME                  - "hetoku.com"
+  CNAME                  - "anton.kundenko.dev" (legacy hetoku.com 301s here)
   favicon.svg            - stylised "A" mark with horizontal crossbar. accent green
                            (#7ce3b5) glyph and crossbar on rounded dark (#0b0f0d) tile,
                            32x32 viewBox, hand-tuned svg geometry.

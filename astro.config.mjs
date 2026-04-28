@@ -6,7 +6,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
-  site: 'https://hetoku.com',
+  site: 'https://anton.kundenko.dev',
   trailingSlash: 'ignore',
   integrations: [
     mdx({

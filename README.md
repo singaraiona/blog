@@ -1,4 +1,4 @@
-# hetoku.com
+# anton.kundenko.dev
 
 Personal site of Anton Kundenko - systems engineer, vector databases.
 
