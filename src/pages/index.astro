@@ -5,6 +5,10 @@ import Caret from "../components/Caret.astro";
 import Section from "../components/Section.astro";
 import PostCard from "../components/PostCard.astro";
 import ProjectCard from "../components/ProjectCard.astro";
+import {
+  PERSPECTIVE_LABELS,
+  PROJECT_LABELS,
+} from "../lib/writing";
 
 const posts = (await getCollection("writing", ({ data }) => !data.draft))
   .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
@@ -15,9 +19,9 @@ const projects = [
     title: "RayforceDB",
     href: "https://rayforcedb.com/",
     tagline:
-      "SIMD-first columnar analytical database in pure C. <1MB binary, zero deps. Powered by Rayfall.",
+      "Embeddable C analytical database with a tiny language surface and years of engine iteration underneath it.",
     blurb:
-      "Original Lisp-like array language for vectorized analytics. Sponsored by Lynx for production adoption.",
+      "The system that turned the ThePlatform ideas into a smaller, embeddable shape and later absorbed the Teide execution model.",
     chips: ["C", "Rayfall", "SIMD"],
   },
   {
@@ -33,9 +37,9 @@ const projects = [
     title: "TeideDB",
     href: "https://teidedb.com",
     tagline:
-      "Analytical SQL engine and embedded analytics runtime over a vectorized in-process execution model.",
+      "Analytical SQL surface and engine research line built around morsel-driven execution and columnar DAG planning.",
     blurb:
-      "Modern SQL surface on top of the Rayforce ecosystem - same vectorized core, different language at the edge.",
+      "The engine work that later merged back into rayforce2 so the user-facing Rayfall surface could sit on the runtime I actually wanted.",
     chips: ["SQL", "Embedded", "Vectorized"],
   },
   {
@@ -49,11 +53,12 @@ const projects = [
   },
   {
     title: "AxlDB",
-    href: "https://axl-db.com/",
+    href: "/career#axl-experiment",
     tagline:
-      "Ultra-compact (<1MB core) zero-dependency vector database for deterministic-latency workloads.",
-    blurb: "HFT, edge analytics, embedded ARM/x86. Recursive interpreter + nano VM.",
-    chips: ["C", "Nano VM", "Embedded"],
+      "Shelved extraction experiment used to test whether Rayforce had another valid core shape.",
+    blurb:
+      "Worth keeping as a lab notebook because the negative result made the production system clearer.",
+    chips: ["C", "Experiment", "Shelved"],
   },
   {
     title: "hyperbridge",
@@ -113,6 +118,12 @@ const links = [
   </section>
 
   <Section title="writing" href="/writing" rightLabel="all posts">
+    <p class="writing-note">
+      the archive reads best alongside the
+      <a href="/career">career map</a>: many posts were written after the
+      fact, so each one now shows both its publish date and the period of work
+      it reflects.
+    </p>
     {posts.length === 0 ? (
       <p class="empty">no posts yet - soon.</p>
     ) : (
@@ -123,6 +134,11 @@ const links = [
             title={post.data.title}
             summary={post.data.summary}
             publishedAt={post.data.publishedAt}
+            context={[
+              PROJECT_LABELS[post.data.project],
+              `work: ${post.data.workPeriod}`,
+              PERSPECTIVE_LABELS[post.data.perspective],
+            ]}
             tags={post.data.tags}
           />
         ))}
@@ -229,6 +245,20 @@ const links = [
     .post-list {
       display: flex;
       flex-direction: column;
+    }
+    .writing-note {
+      color: var(--color-muted);
+      font-size: 0.88rem;
+      margin: 0 0 0.9rem;
+      max-width: 62ch;
+    }
+    .writing-note a {
+      color: var(--color-accent);
+    }
+    .writing-note a:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--color-accent-dim);
+      text-underline-offset: 3px;
     }
     .empty {
       color: var(--color-muted);

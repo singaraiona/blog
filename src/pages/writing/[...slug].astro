@@ -25,6 +25,10 @@ const stats = readingTime(plain);
   tags={post.data.tags}
   readingTime={stats.text}
   slug={post.id}
+  project={post.data.project}
+  step={post.data.step}
+  workPeriod={post.data.workPeriod}
+  perspective={post.data.perspective}
 >
   <Content />
 </PostLayout>

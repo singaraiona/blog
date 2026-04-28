@@ -3,6 +3,10 @@ title: starting hyperbridge
 summary: i needed an mpmc channel with async support. crossbeam covers the mpmc; nothing covers both. so i wrote my own.
 publishedAt: 2021-11-17
 tags: [hyperbridge, rust, concurrency]
+project: hyperbridge
+step: hyperbridge
+workPeriod: "Nov 2021"
+perspective: milestone
 ---
 
 crossbeam-channel covers MPMC unbounded but has no async surface. Tokio's `mpsc` is async but single-consumer. Flume sits in between and worked on benches I did not believe. The crate I needed for theplatform is the one nobody had written, so I wrote it.

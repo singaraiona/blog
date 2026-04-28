@@ -3,6 +3,10 @@ title: an http request handler in thirty-two lines
 summary: composing a socket, a parser, and a reaction across subsystem lines, with no boundary to pay for.
 publishedAt: 2021-05-26
 tags: [theplatform, o, parsing, concurrency]
+project: theplatform
+step: theplatform-production
+workPeriod: "2021"
+perspective: note
 ---
 
 An HTTP-over-anything query handler in O is thirty-two lines because the parser, the socket, and the response builder all live under the same dispatch and there is no boundary between them.

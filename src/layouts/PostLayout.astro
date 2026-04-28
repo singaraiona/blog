@@ -2,6 +2,12 @@
 import BaseLayout from "./BaseLayout.astro";
 // katex CSS is opt-in per post (import it from a post when you use math)
 
+import {
+  PERSPECTIVE_LABELS,
+  PROJECT_LABELS,
+  STEP_INFO,
+} from "../lib/writing";
+
 interface Props {
   title: string;
   summary: string;
@@ -10,10 +16,25 @@ interface Props {
   tags: string[];
   readingTime: string;
   slug: string;
+  project: keyof typeof PROJECT_LABELS;
+  step: keyof typeof STEP_INFO;
+  workPeriod: string;
+  perspective: keyof typeof PERSPECTIVE_LABELS;
 }
 
-const { title, summary, publishedAt, updatedAt, tags, readingTime, slug } =
-  Astro.props;
+const {
+  title,
+  summary,
+  publishedAt,
+  updatedAt,
+  tags,
+  readingTime,
+  slug,
+  project,
+  step,
+  workPeriod,
+  perspective,
+} = Astro.props;
 
 const fmt = (d: Date) =>
   d.toISOString().slice(0, 10);
@@ -34,8 +55,14 @@ void slug;
       <a href="/writing" class="back">← writing</a>
       <h1 class="post-title">{title}</h1>
       <p class="post-summary">{summary}</p>
+      <div class="post-context">
+        <span class="chip">{PROJECT_LABELS[project]}</span>
+        <span class="chip">{STEP_INFO[step].title}</span>
+        <span class="chip">work: {workPeriod}</span>
+        <span class="chip">{PERSPECTIVE_LABELS[perspective]}</span>
+      </div>
       <div class="post-meta">
-        <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
+        <time datetime={publishedAt.toISOString()}>published {fmt(publishedAt)}</time>
         {updatedAt && (
           <>
             <span class="dot">·</span>
@@ -93,6 +120,19 @@ void slug;
       font-size: 1rem;
       margin: 0 0 1rem;
       line-height: 1.5;
+    }
+    .post-context {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.85rem;
+    }
+    .chip {
+      font-size: 0.74rem;
+      padding: 0.12rem 0.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      color: var(--color-muted);
     }
     .post-meta {
       display: flex;

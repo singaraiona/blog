@@ -6,19 +6,32 @@ interface Props {
   publishedAt: Date;
   tags?: string[];
   compact?: boolean;
+  context?: string[];
 }
 
-const { href, title, summary, publishedAt, tags = [], compact = false } =
-  Astro.props;
+const {
+  href,
+  title,
+  summary,
+  publishedAt,
+  tags = [],
+  compact = false,
+  context = [],
+} = Astro.props;
 
 const date = publishedAt.toISOString().slice(0, 10);
 ---
 
 <a class:list={["post-card", { compact }]} href={href}>
-  <time class="date" datetime={publishedAt.toISOString()}>{date}</time>
+  <time class="date" datetime={publishedAt.toISOString()}>published {date}</time>
   <div class="body">
     <div class="title">{title}</div>
     {!compact && <div class="summary">{summary}</div>}
+    {!compact && context.length > 0 && (
+      <div class="context">
+        {context.map((item) => <span class="context-item">{item}</span>)}
+      </div>
+    )}
     {!compact && tags.length > 0 && (
       <div class="tags">{tags.map((t) => <span class="tag">#{t}</span>)}</div>
     )}
@@ -58,6 +71,19 @@ const date = publishedAt.toISOString().slice(0, 10);
     line-height: 1.5;
     margin-top: 0.25rem;
   }
+  .context {
+    margin-top: 0.45rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .context-item {
+    font-size: 0.72rem;
+    padding: 0.1rem 0.45rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    color: var(--color-muted);
+  }
   .tags {
     margin-top: 0.4rem;
     display: flex;
@@ -84,6 +110,7 @@ const date = publishedAt.toISOString().slice(0, 10);
     transform: translateX(2px);
   }
   .compact .summary,
+  .compact .context,
   .compact .tags {
     display: none;
   }

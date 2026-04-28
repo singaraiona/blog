@@ -8,7 +8,7 @@ const work = [
     org: "Lynx Trading Technologies",
     role: "principal systems engineer / architect",
     desc:
-      "designed and built ThePlatform (columnar time-series + O language, 2016-), RayforceDB (SIMD-first analytical engine + Rayfall language, 2020-), TeideDB (SQL surface, 2024-), and Teidelum (open-source knowledge infrastructure, 2025-). replaced kdb+/q across hundreds of production instances powering market data, risk, and order-flow analytics - 7-figure annual savings.",
+      "designed and built ThePlatform (columnar time-series + O language, 2016-), RayforceDB (SIMD-first analytical engine + Rayfall language, 2020-), TeideDB (parallel engine line later merged back into rayforce2, 2024-), and Teidelum (open-source knowledge infrastructure, 2025-). replaced kdb+/q across hundreds of production instances powering market data, risk, and order-flow analytics - 7-figure annual savings.",
   },
   {
     when: "2012 - 2013",
@@ -52,9 +52,12 @@ const speaking: Talk[] = [
         <a href="https://rayforcedb.com/" target="_blank" rel="noopener noreferrer">RayforceDB</a>
         (SIMD-first analytical engine, the <em>Rayfall</em> language). Both
         run across hundreds of production instances, replacing kdb+/q with
-        7-figure annual savings. Around the Rayforce core I've since
-        built <a href="https://teidedb.com" target="_blank" rel="noopener noreferrer">TeideDB</a>
-        (SQL surface, embedded analytics) and
+        7-figure annual savings.
+        {" "}
+        <a href="https://teidedb.com" target="_blank" rel="noopener noreferrer">TeideDB</a>
+        started as a parallel engine research line and now feeds the merged
+        rayforce2/teide runtime, while
+        {" "}
         <a href="https://lum.teidedb.com/" target="_blank" rel="noopener noreferrer">Teidelum</a>
         (open-source knowledge infrastructure with MCP for AI agents).
       </p>

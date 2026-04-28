@@ -3,6 +3,10 @@ title: per-thread heaps, no mutex on the hot path
 summary: every task carries its own allocator. cross-thread frees never touch a lock.
 publishedAt: 2025-01-15
 tags: [rayforce, c, performance, allocator, concurrency]
+project: rayforce
+step: rayforce-hardening
+workPeriod: "2024-2025"
+perspective: note
 ---
 
 The allocator is per-thread. Every task carries its own heap with its own freelists, slab cache, and free-order bitmap. The first line of every entry point is:

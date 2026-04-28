@@ -1,0 +1,145 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostCard from "../components/PostCard.astro";
+import {
+  PERSPECTIVE_LABELS,
+  PROJECT_LABELS,
+  STEP_INFO,
+  STEP_ORDER,
+} from "../lib/writing";
+
+const posts = await getCollection("writing", ({ data }) => !data.draft);
+const grouped = new Map<string, typeof posts>();
+
+for (const step of STEP_ORDER) grouped.set(step, []);
+for (const post of posts) grouped.get(post.data.step)!.push(post);
+for (const step of STEP_ORDER) {
+  grouped.get(step)!.sort(
+    (a, b) => a.data.publishedAt.valueOf() - b.data.publishedAt.valueOf(),
+  );
+}
+---
+
+<BaseLayout
+  title="career"
+  description="A phase-by-phase map of Anton Kundenko's development career, linked to the essays and notes behind each step."
+>
+  <article class="career fade-up">
+    <header class="head">
+      <h1>career</h1>
+      <p class="lede">
+        the writing archive is not a flat changelog. it tracks a sequence of
+        bets, constraints, corrections, and merges.
+      </p>
+      <p class="lede">
+        this page makes that sequence explicit. each phase states the truth of
+        that step directly, then links to the posts behind it. publication date
+        and work period are shown separately because many of the essays are
+        retrospective.
+      </p>
+    </header>
+
+    <div class="timeline">
+      {STEP_ORDER.map((step) => (
+        <section class="phase" id={step}>
+          <div class="phase-head">
+            <div class="years">{STEP_INFO[step].years}</div>
+            <h2>{STEP_INFO[step].title}</h2>
+            <p class="truth">{STEP_INFO[step].truth}</p>
+            <p class="summary">{STEP_INFO[step].summary}</p>
+          </div>
+          <div class="posts">
+            {grouped.get(step)!.map((post) => (
+              <PostCard
+                href={`/writing/${post.id}`}
+                title={post.data.title}
+                summary={post.data.summary}
+                publishedAt={post.data.publishedAt}
+                context={[
+                  PROJECT_LABELS[post.data.project],
+                  `work: ${post.data.workPeriod}`,
+                  PERSPECTIVE_LABELS[post.data.perspective],
+                ]}
+                tags={post.data.tags}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  </article>
+
+  <style>
+    .career {
+      max-width: 72rem;
+      margin: 0 auto;
+    }
+    .head {
+      max-width: 65ch;
+      margin-bottom: 2.5rem;
+    }
+    .head h1 {
+      font-family: var(--font-mono);
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 1rem;
+    }
+    .head h1::before {
+      content: "# ";
+      color: var(--color-accent-dim);
+    }
+    .lede {
+      color: var(--color-fg);
+      font-size: 0.98rem;
+      line-height: 1.65;
+      margin: 0 0 1rem;
+      max-width: 65ch;
+    }
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1.6rem;
+    }
+    .phase {
+      padding: 1.2rem;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      background: var(--color-surface);
+    }
+    .phase-head {
+      max-width: 70ch;
+      margin-bottom: 0.8rem;
+    }
+    .years {
+      color: var(--color-faint);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      margin-bottom: 0.35rem;
+    }
+    .phase h2 {
+      margin: 0 0 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      color: var(--color-fg);
+    }
+    .truth,
+    .summary {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .truth {
+      color: var(--color-fg);
+    }
+    .summary {
+      color: var(--color-muted);
+      margin-top: 0.45rem;
+    }
+    .posts {
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</BaseLayout>

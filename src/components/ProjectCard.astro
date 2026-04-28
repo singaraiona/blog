@@ -8,12 +8,18 @@ interface Props {
 }
 
 const { title, href, tagline, blurb, chips } = Astro.props;
+const external = /^https?:\/\//.test(href);
 ---
 
-<a class="project-card" href={href} target="_blank" rel="noopener noreferrer">
+<a
+  class="project-card"
+  href={href}
+  target={external ? "_blank" : undefined}
+  rel={external ? "noopener noreferrer" : undefined}
+>
   <div class="header">
     <h3>{title}</h3>
-    <span class="external" aria-hidden="true">↗</span>
+    <span class="link-mark" aria-hidden="true">{external ? "↗" : "→"}</span>
   </div>
   <p class="tagline">{tagline}</p>
   <p class="blurb">{blurb}</p>
@@ -50,11 +56,11 @@ const { title, href, tagline, blurb, chips } = Astro.props;
     font-weight: 600;
     letter-spacing: -0.01em;
   }
-  .external {
+  .link-mark {
     color: var(--color-muted);
     font-size: 0.85rem;
   }
-  .project-card:hover .external {
+  .project-card:hover .link-mark {
     color: var(--color-accent);
   }
   .tagline {

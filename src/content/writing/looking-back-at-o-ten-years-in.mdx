@@ -3,6 +3,10 @@ title: looking back at o, ten years in
 summary: ten years of theplatform. what i think now that i did not think then.
 publishedAt: 2025-11-15
 tags: [theplatform, o, retrospective]
+project: theplatform
+step: theplatform-production
+workPeriod: "2016-2025"
+perspective: retrospective
 ---
 
 Almost ten years. None of the ideas were new. K is forty years old. Join-calculus is from 1996. PEG is from 2004. What was new was insisting they share a runtime. That part I did not borrow from anywhere, and that part is where the leverage came from.
@@ -12,4 +16,3 @@ The second-order effects of the unification turned out to be bigger than the fir
 The other thing I would write down: performance is a design property, not a tuning property. The fast version of a primitive is the one that lives in the right crate, returns the right shape, and writes into the buffer the planner sized. I do not remember the last time I optimised a hot loop. I remember the times I changed a primitive's shape and the loop became fast.
 
 If I had to hand the system to someone today and tell them one thing, it would be: keep the table small.
-

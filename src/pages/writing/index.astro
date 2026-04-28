@@ -2,6 +2,12 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/PostCard.astro";
+import {
+  PERSPECTIVE_LABELS,
+  PROJECT_LABELS,
+  STEP_INFO,
+  STEP_ORDER,
+} from "../../lib/writing";
 
 const posts = (await getCollection("writing", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
@@ -14,43 +20,77 @@ for (const post of posts) {
   grouped.get(year)!.push(post);
 }
 const years = Array.from(grouped.keys()).sort((a, b) => b - a);
+
+const postsByStep = new Map<string, typeof posts>();
+for (const step of STEP_ORDER) postsByStep.set(step, []);
+for (const post of posts) postsByStep.get(post.data.step)!.push(post);
 ---
 
 <BaseLayout
   title="writing"
-  description="Essays and notes by Anton Kundenko on vector databases, SIMD, allocators, and tiny VMs."
+  description="Essays and notes by Anton Kundenko on vector databases, SIMD, allocators, and the real phases behind the work."
 >
   <header class="page-head fade-up">
     <h1>writing</h1>
     <p class="lede">
       essays and notes on vector databases, simd, allocators, and tiny vms.
+      many of these are retrospective, so each post now shows both the
+      publication date and the period of work it is actually describing.
     </p>
     <p class="rss">
       <a href="/rss.xml">subscribe via rss →</a>
     </p>
   </header>
 
+  <section class="career-map">
+    <div class="career-map-head">
+      <h2>read by career step</h2>
+      <a href="/career">full career map →</a>
+    </div>
+    <div class="phase-list">
+      {STEP_ORDER.map((step) => (
+        <article class="phase-card">
+          <div class="phase-years">{STEP_INFO[step].years}</div>
+          <h3>{STEP_INFO[step].title}</h3>
+          <p class="phase-truth">{STEP_INFO[step].truth}</p>
+          <p class="phase-summary">{STEP_INFO[step].summary}</p>
+          <p class="phase-count">
+            {postsByStep.get(step)!.length} post{postsByStep.get(step)!.length === 1 ? "" : "s"}
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
   {posts.length === 0 ? (
     <p class="empty">no posts yet.</p>
   ) : (
-    <div class="years">
-      {years.map((year) => (
-        <section class="year">
-          <h2>{year}</h2>
-          <div class="post-list">
-            {grouped.get(year)!.map((post) => (
-              <PostCard
-                href={`/writing/${post.id}`}
-                title={post.data.title}
-                summary={post.data.summary}
-                publishedAt={post.data.publishedAt}
-                tags={post.data.tags}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
-    </div>
+    <>
+      <h2 class="archive-head">publication archive</h2>
+      <div class="years">
+        {years.map((year) => (
+          <section class="year">
+            <h2>{year}</h2>
+            <div class="post-list">
+              {grouped.get(year)!.map((post) => (
+                <PostCard
+                  href={`/writing/${post.id}`}
+                  title={post.data.title}
+                  summary={post.data.summary}
+                  publishedAt={post.data.publishedAt}
+                  context={[
+                    PROJECT_LABELS[post.data.project],
+                    `work: ${post.data.workPeriod}`,
+                    PERSPECTIVE_LABELS[post.data.perspective],
+                  ]}
+                  tags={post.data.tags}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </>
   )}
 
   <style>
@@ -82,10 +122,83 @@ const years = Array.from(grouped.keys()).sort((a, b) => b - a);
       text-decoration-color: var(--color-accent-dim);
       text-underline-offset: 3px;
     }
+    .career-map {
+      margin-bottom: 2.8rem;
+      padding: 1.2rem;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      background: var(--color-surface);
+    }
+    .career-map-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: baseline;
+      margin-bottom: 1rem;
+    }
+    .career-map-head h2 {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+    }
+    .career-map-head a {
+      color: var(--color-muted);
+      font-size: 0.82rem;
+    }
+    .career-map-head a:hover {
+      color: var(--color-accent);
+    }
+    .phase-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+    .phase-card {
+      padding: 0.9rem;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+    }
+    .phase-years {
+      color: var(--color-faint);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      margin-bottom: 0.35rem;
+    }
+    .phase-card h3 {
+      margin: 0 0 0.45rem;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--color-fg);
+    }
+    .phase-truth,
+    .phase-summary,
+    .phase-count {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+    .phase-truth {
+      color: var(--color-fg);
+    }
+    .phase-summary {
+      color: var(--color-muted);
+      margin-top: 0.45rem;
+    }
+    .phase-count {
+      color: var(--color-accent-dim);
+      margin-top: 0.6rem;
+      font-size: 0.76rem;
+    }
     .years {
       display: flex;
       flex-direction: column;
       gap: 2.5rem;
+    }
+    .archive-head {
+      margin: 0 0 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--color-fg);
     }
     .year h2 {
       font-family: var(--font-mono);
@@ -102,6 +215,15 @@ const years = Array.from(grouped.keys()).sort((a, b) => b - a);
     .empty {
       color: var(--color-muted);
       font-size: 0.9rem;
+    }
+    @media (max-width: 720px) {
+      .phase-list {
+        grid-template-columns: 1fr;
+      }
+      .career-map-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </BaseLayout>
