@@ -1,0 +1,31 @@
+# Anton Kundenko
+
+> Principal systems engineer and architect of high-performance database systems. Creator of the Rayfall and O programming languages. 18+ years building performance-critical infrastructure in C and custom runtimes.
+
+Anton Kundenko designs and ships columnar analytical databases and the languages that drive them. Currently at Lynx Trading Technologies (2013-present), where his systems have replaced kdb+/q across hundreds of production instances. Earlier at Samsung Electronics R&D (2012-2013), porting KVM to ARM Cortex-A with TrustZone integration.
+
+His work focuses on SIMD-first execution, zero-allocation hot paths, morsel-driven query scheduling, and the language surfaces that expose those engines to analysts.
+
+## Projects
+
+- [RayforceDB](https://rayforcedb.com): SIMD-first columnar analytical database in C with the Rayfall language. Sponsored by Lynx; replaces kdb+/q in production.
+- [ThePlatform](https://theplatform.technology): Columnar time-series database and the O language. Internal at Lynx.
+- [TeideDB](https://teidedb.com): Analytical SQL surface over the Rayforce vectorized core.
+- [Teidelum](https://lum.teidedb.com): Open-source knowledge infrastructure on Teide, exposing data via MCP and REST.
+- [AxlDB](https://axl-db.com): Ultra-compact zero-dependency vector database for deterministic-latency workloads.
+- [hyperbridge](https://github.com/singaraiona/hyperbridge): Open-source Rust crate for fast multi-producer, multi-consumer unbounded channels.
+
+## Writing
+
+Technical blog at https://anton.kundenko.dev/writing covering columnar engine internals, SIMD and allocator design, programming language theory (k, APL lineage), morsel-driven execution, datalog on analytical engines, query scheduling, and systems debugging.
+
+- Index: https://anton.kundenko.dev/writing
+- RSS feed: https://anton.kundenko.dev/rss.xml
+- Career map: https://anton.kundenko.dev/career
+
+## Contact
+
+- Email: anton.kundenko@gmail.com
+- GitHub: https://github.com/singaraiona
+- LinkedIn: https://www.linkedin.com/in/anton-kundenko-a22a3667
+- Reddit: https://www.reddit.com/user/het0ku

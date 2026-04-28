@@ -42,3 +42,40 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  indexnow:
+    needs: deploy
+    runs-on: ubuntu-latest
+    env:
+      INDEXNOW_KEY: 2ed8298f1b3928a48a1a8ddba0b7e4ab35607755e3ad4311ba493accda29b8f3
+      SITE_HOST: anton.kundenko.dev
+    steps:
+      - name: Wait for fastly cache to settle
+        run: sleep 30
+
+      - name: Collect URLs from sitemap
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://${SITE_HOST}/sitemap-0.xml" \
+            | grep -oP '(?<=<loc>)[^<]+' \
+            | jq -R -s 'split("\n") | map(select(length > 0))' > urls.json
+          echo "URL count: $(jq 'length' urls.json)"
+
+      - name: Build IndexNow payload
+        run: |
+          jq -n \
+            --arg host "${SITE_HOST}" \
+            --arg key "${INDEXNOW_KEY}" \
+            --arg keyLocation "https://${SITE_HOST}/${INDEXNOW_KEY}.txt" \
+            --slurpfile urls urls.json \
+            '{host: $host, key: $key, keyLocation: $keyLocation, urlList: $urls[0]}' \
+            > body.json
+
+      - name: Notify IndexNow
+        run: |
+          curl -fsSL -X POST \
+            -H "Content-Type: application/json" \
+            --data @body.json \
+            https://api.indexnow.org/IndexNow \
+            -o response.txt -w "HTTP %{http_code}\n" || echo "IndexNow non-fatal failure (continuing)"
+          cat response.txt 2>/dev/null || true
