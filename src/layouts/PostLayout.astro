@@ -62,7 +62,7 @@ void slug;
         <span class="chip">{PERSPECTIVE_LABELS[perspective]}</span>
       </div>
       <div class="post-meta">
-        <time datetime={publishedAt.toISOString()}>published {fmt(publishedAt)}</time>
+        <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
         {updatedAt && (
           <>
             <span class="dot">·</span>

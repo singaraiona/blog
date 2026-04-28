@@ -23,7 +23,7 @@ const date = publishedAt.toISOString().slice(0, 10);
 ---
 
 <a class:list={["post-card", { compact }]} href={href}>
-  <time class="date" datetime={publishedAt.toISOString()}>published {date}</time>
+  <time class="date" datetime={publishedAt.toISOString()}>{date}</time>
   <div class="body">
     <div class="title">{title}</div>
     {!compact && <div class="summary">{summary}</div>}
