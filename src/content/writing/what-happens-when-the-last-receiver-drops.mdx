@@ -9,6 +9,8 @@ workPeriod: "Nov 2021-Jan 2022"
 perspective: postmortem
 ---
 
+> **Core idea:** Hyperbridge's close semantics forced a precise publication rule: make visibility the final store so panics cannot expose half-written channel state.
+
 The visibility-store has to be last. That is the rule I did not have written down for the first version of hyperbridge, and that cost me three weeks.
 
 A sender writes a slot in two parts: it puts the value into the slot, then it advances `tail.index` to publish that the slot is readable. If those happen in that order, a panic between them leaves the slot non-visible: the consumer never sees the index advance, the value is invisible, the channel is consistent. If the order is reversed - or if any other state-changing operation happens between the visibility store and the end of the function - a panic mid-call can leak a half-published value into the consumer's view.

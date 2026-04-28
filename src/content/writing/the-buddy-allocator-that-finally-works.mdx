@@ -9,6 +9,8 @@ workPeriod: "2024"
 perspective: note
 ---
 
+> **Core idea:** the allocator became simple enough to trust when block selection collapsed to a bitmap mask and a hardware trailing-zero count.
+
 The allocator went through three rewrites this year. The trick that finally made it fast is two instructions long.
 
 `heap->avail` is a `u64`. Bit `i` is set when there is at least one free block at order `i`. To find the smallest free block that fits a request of order `order`:

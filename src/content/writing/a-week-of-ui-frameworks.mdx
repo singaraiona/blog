@@ -1,6 +1,6 @@
 ---
 title: a week of ui frameworks
-summary: seven days, four desktop ui frameworks, one survivor. a database engineer's notes on temporary unfaithfulness.
+summary: seven days, four desktop ui frameworks, and the decision to keep the database UI close to the engine.
 publishedAt: 2026-01-28
 tags: [rayforce, ui, retrospective]
 project: rayforce
@@ -9,18 +9,20 @@ workPeriod: "Jan 2026"
 perspective: retrospective
 ---
 
-The last seven days I rewrote the rayforce desktop UI four times. It is unflattering and worth writing down.
+> **Core idea:** the right UI stack for a systems product is the one that preserves the engine's deployment and latency constraints, not the one with the most convenient prototype path.
+
+The last seven days I rewrote the rayforce desktop UI four times. The useful part of the exercise was not the prototypes; it was discovering which deployment constraints the UI could not violate.
 
 The motivation was simple. The WASM browser SDK is good for embedding into any web page, but a real analyst wants a desktop application with native performance, native file dialogs, and a stable window. I decided to write one. Then I decided to write four.
 
-**Day one to three: Tauri + React.** The most popular desktop-and-web combination right now. Wrote a working dashboard with table viewer, query editor, and chart panel. Functional. The build was two hundred megabytes of node_modules and the dev experience was a JavaScript stack on top of a Rust shell. The thing worked. I did not enjoy any minute of it.
+**Day one to three: Tauri + React.** The most popular desktop-and-web combination right now. Wrote a working dashboard with table viewer, query editor, and chart panel. Functional. The build was two hundred megabytes of node_modules and the dev experience was a JavaScript stack on top of a Rust shell. It worked, but it moved the product away from the small, direct deployment model that rayforce is built around.
 
-**Day four: Floem.** Rust reactive UI in a single crate. I had read the docs for an evening months ago and wanted to give it a real day. Built the table viewer. The framework is good. It is also single-author and a moving target, and I kept finding edges that needed me to write Floem rather than write my application. Closed the laptop.
+**Day four: Floem.** Rust reactive UI in a single crate. I had read the docs for an evening months ago and wanted to give it a real day. Built the table viewer. The framework is good. It is also single-author and a moving target, and I kept finding edges that needed me to work on framework behavior rather than the database application.
 
-**Day four, evening into morning: Iced.** Five commits across the day. Spawned a window. Rendered a table. Realised I would be writing Iced's layout engine for any nontrivial dashboard. Closed.
+**Day four, evening into morning: Iced.** Five commits across the day. Spawned a window. Rendered a table. Realised that any nontrivial dashboard would require layout work below the abstraction level I wanted for this product.
 
 **Day five onwards: C++ with a custom widget set.** This is the one that stuck. A small framework that I now own, plus the application on top. I link it against rayforce directly and there is no IPC. Cold start is fast, the binary is small, and the parts I care about are mine to control.
 
 I am a database engineer who was, for a week, a UI engineer. The lesson is the lesson I keep relearning: when the stack does not match the discipline, no amount of framework convenience makes up for the impedance. C is not a UI language. C++ with a small widget set is, in my hands, the path of least friction for a UI that ships next to a database that is also written in C.
 
-The Tauri prototype lives in a branch. The Floem and Iced ones I will keep around for one quarter and then delete.
+The Tauri prototype lives in a branch. The Floem and Iced experiments remain useful as decision records, not as product directions.

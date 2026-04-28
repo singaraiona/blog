@@ -9,6 +9,8 @@ workPeriod: "2021"
 perspective: note
 ---
 
+> **Core idea:** ThePlatform's technical advantage was not a short HTTP handler; it was that parsing, sockets, error handling, and query reactions shared one runtime boundary.
+
 An HTTP-over-anything query handler in O is thirty-two lines because the parser, the socket, and the response builder all live under the same dispatch and there is no boundary between them.
 
 ```

@@ -1,6 +1,6 @@
 ---
 title: join patterns instead of mailboxes
-summary: the first reactor is in. three things this gets you that an actor mailbox does not.
+summary: the first reactor is in. join patterns provide atomic matching that actor mailboxes do not.
 publishedAt: 2020-03-17
 tags: [theplatform, concurrency, join-calculus]
 project: theplatform
@@ -8,6 +8,8 @@ step: theplatform-production
 workPeriod: "2019-2020"
 perspective: log
 ---
+
+> **Core idea:** ThePlatform's reactor treated join-calculus matching as the same kind of kernelized operation as query evaluation, not as an actor mailbox convention.
 
 The reactor is using the same kernels as the query engine, because they are the same operations.
 

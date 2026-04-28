@@ -9,6 +9,8 @@ workPeriod: "2026"
 perspective: note
 ---
 
+> **Core idea:** the rayforce2 specification work made tacit database-engineering judgment explicit enough that another executor, human or agentic, could test it.
+
 The experiment I have been running for the last few months: take eighteen years of database engineering - the parts that have stopped feeling like decisions and started feeling like reflexes - and write them down densely enough that someone without my background can deliver the implementation.
 
 Most of what I know is not propositional. It is the shape my hands make when I sit down to write a query engine. No malloc on the hot path. Morsels of 1024 elements. State between morsels, not inside kernels. Predicate pushdown before fusion. None of those are obvious. None of them are wrong. Until I had a counterparty that would actually fail to execute when I left them out, I had no reason to write any of them down at the level required to enforce.

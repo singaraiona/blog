@@ -9,6 +9,8 @@ workPeriod: "2017"
 perspective: note
 ---
 
+> **Core idea:** the columnar layout choice was not aesthetic; it was the precondition for cache-efficient scans, SIMD kernels, and query plans that touch only needed fields.
+
 A note I keep having to reread.
 
 A `Vec<f64>` of length N takes 8N bytes plus a fat-pointer header. It fits in a cache line every eight elements. A SIMD register eats it four-at-a-time on AVX2, eight-at-a-time on AVX-512. The hardware was built for this layout. The compiler will autovectorise the obvious loops without help.

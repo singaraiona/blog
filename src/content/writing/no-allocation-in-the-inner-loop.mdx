@@ -9,6 +9,8 @@ workPeriod: "2016-2017"
 perspective: note
 ---
 
+> **Core idea:** the early performance rule was simple and durable: vector kernels may consume bandwidth and registers, but they may not allocate on the hot path.
+
 The discipline I have ended up with, after a year of writing the kernel, is shorter than I expected.
 
 Do not allocate in the inner loop.

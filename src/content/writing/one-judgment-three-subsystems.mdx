@@ -9,6 +9,8 @@ workPeriod: "2016-2020"
 perspective: retrospective
 ---
 
+> **Core idea:** ThePlatform was an attempt to reduce vector evaluation, reaction firing, and grammar reduction to one judgment form.
+
 There is one extension protocol in O, and adding a subsystem to the runtime is a row in the same table.
 
 A primitive has an arity, an effect class, and a shape signature. The runtime indexes implementations by those. Vector ops are primitives. Reactions are primitives. Parser rules are primitives. They all live in the same table. When a reaction misbehaves I see the same trace shape I see when a vector op misbehaves; the optimiser fuses a parse-then-aggregate the same way it fuses two maps; profiling, tracing, error reporting, and cancellation attach to the dispatch, not to the subsystem.

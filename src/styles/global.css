@@ -198,9 +198,22 @@ hr {
 
 .prose blockquote {
   border-left: 2px solid var(--color-accent-dim);
-  padding-left: 1rem;
-  color: var(--color-muted);
+  padding: 0.85rem 1rem;
+  color: var(--color-fg);
+  background: var(--color-surface);
+  border-radius: 0 8px 8px 0;
   font-style: normal;
+}
+
+.prose blockquote p {
+  margin: 0;
+}
+
+.prose blockquote strong {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  letter-spacing: -0.01em;
 }
 
 .prose ul,

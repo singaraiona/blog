@@ -9,6 +9,8 @@ workPeriod: "Jun-Oct 2025"
 perspective: retrospective
 ---
 
+> **Core idea:** shelving AxlDB was a positive result: the extraction proved that Rayforce's database layer was not accidental bloat but part of the useful engine boundary.
+
 The negative result of the AxlDB experiment is the result that mattered: there is no other shape.
 
 I started AxlDB four months ago to find out which parts of rayforce were the database and which were the engine. The hidden hope was that, freed from the database, the engine would settle into a shape rayforce could not have. It did not. AxlDB grew the same primitive surface, the same memory model, the same dispatch shape - more or less by inevitability. The places I tried to deviate, I deviated back. The shape is right; there is no other shape; rayforce can serve the embedded niche I imagined for AxlDB with a smaller compile-time configuration.

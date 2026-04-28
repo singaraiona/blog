@@ -1,6 +1,6 @@
 ---
 title: six grammars in under nine hundred lines
-summary: an audit of every peg grammar shipped under std/. a count that makes me worry i am cheating.
+summary: an audit of every peg grammar shipped under std/. the small line count is evidence for grammars-as-values.
 publishedAt: 2024-06-08
 tags: [theplatform, parsing, peg, dsl]
 project: theplatform
@@ -8,6 +8,8 @@ step: theplatform-production
 workPeriod: "2019-2024"
 perspective: note
 ---
+
+> **Core idea:** small parser implementations were evidence that first-class grammars removed the usual boundary between DSL syntax and host-language execution.
 
 Six PEG grammars under `std/`, eight hundred and eighty-two lines:
 

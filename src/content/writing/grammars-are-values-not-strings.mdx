@@ -9,6 +9,8 @@ workPeriod: "2018-2019"
 perspective: note
 ---
 
+> **Core idea:** treating grammars as runtime values lets parsing, semantic actions, and downstream reactions compose inside one language instead of across generator boundaries.
+
 When grammars are values, the language stops being two languages, and the action body of a parser rule is just a lambda in the host language.
 
 In O, a rule is one line:

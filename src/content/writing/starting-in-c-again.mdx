@@ -9,6 +9,8 @@ workPeriod: "2020-2022"
 perspective: milestone
 ---
 
+> **Core idea:** rewriting the embeddable engine in C was a deployment decision: ownership of ABI, binary size, allocator behavior, and integration mattered more than implementation comfort.
+
 A year and a half of thinking. Today I started, in C.
 
 The decision is C because the whole point of the next thing is that it embeds. The database I want to ship lives inside someone else's binary - a desk's analytics process, a partner's pipeline, a microcontroller in a vehicle - and that someone is not going to inherit a Cargo workspace and a tokio runtime to use my library. They are going to want a single static `.a`, a header, and a stable C ABI.

@@ -9,6 +9,8 @@ workPeriod: "2024-2025"
 perspective: note
 ---
 
+> **Core idea:** per-thread heaps removed allocator contention from Rayforce's hot path while preserving deterministic ownership and reclamation rules.
+
 The allocator is per-thread. Every task carries its own heap with its own freelists, slab cache, and free-order bitmap. The first line of every entry point is:
 
 ```c

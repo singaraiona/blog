@@ -9,6 +9,8 @@ workPeriod: "2018"
 perspective: note
 ---
 
+> **Core idea:** the FIX-library failure made the grammars-as-values design concrete: protocol variation needed to live next to the consumer, not inside a third-party interpretation layer.
+
 A notebook entry. The work itself is internal at Lynx; the moment is not.
 
 I had been using a FIX library that could not parse the venue I cared about without a fork. The venue had a couple of extra repeating-group fields and a tag the spec said was a string but they treated as binary. Library opinions about what your message looks like are non-negotiable, and the venue's opinions are also non-negotiable, and they disagreed.

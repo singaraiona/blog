@@ -9,6 +9,8 @@ workPeriod: "2016"
 perspective: log
 ---
 
+> **Core idea:** O began with a dispatch table, not syntax; arity was made the first semantic axis so vectors, applications, and later reactions could share one runtime model.
+
 The language has a name now: O. The first thing to settle is not the syntax. It is the dispatch rule.
 
 Every primitive will declare its arity. The runtime indexes implementations by that arity. The call site does not branch on type, does not unwrap a vtable, does not look up a generic; it does a one-step apply through the row keyed by `(glyph, arity)`. On paper today, with no code yet:

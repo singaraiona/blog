@@ -9,6 +9,8 @@ workPeriod: "2022"
 perspective: note
 ---
 
+> **Core idea:** Hyperbridge's cursor design used one atomic index word to carry both position and lifecycle state, avoiding a lock in the cross-block race path.
+
 One bit, two meanings. That is the trick that ships today as 0.2.5.
 
 ```rust

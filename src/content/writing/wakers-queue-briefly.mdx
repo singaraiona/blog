@@ -9,6 +9,8 @@ workPeriod: "Nov 2021"
 perspective: postmortem
 ---
 
+> **Core idea:** the waker rollback was an engineering tradeoff: a simpler unfair wakeup model was more honest than a theoretically fair queue with bad performance or fragile bookkeeping.
+
 Two-day post-mortem on a piece of design I had to undo.
 
 Hyperbridge supports MPMC channels. Hyperbridge has an optional futures feature that exposes Sink and Stream. The combination of those two means there can be many receivers, each holding a Stream future, each wanting to be woken when a value lands. The first version of the crate held a queue of wakers - one per receiver - and tried to wake the right ones in order.

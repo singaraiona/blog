@@ -9,6 +9,8 @@ workPeriod: "Feb 2026"
 perspective: milestone
 ---
 
+> **Core idea:** the Teide merge was an architectural correction: keep Rayfall as the user surface, but move it onto the engine architecture that had become technically stronger.
+
 Keep rayforce's surface. Swap to Teide's engine.
 
 Rayforce has the language people use - the Rayfall VM, two and a half years of library hardening, a stable C ABI, the Python binding, the WASM SDK, real users. Teide has the engine I have wanted underneath that language all along - morsel-driven execution with no scalar fallback path, a multi-pass DAG optimiser, CSR-stored columns that let graph traversal fuse into the same pipeline as everything else.

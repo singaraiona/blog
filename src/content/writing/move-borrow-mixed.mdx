@@ -9,6 +9,8 @@ workPeriod: "2022"
 perspective: note
 ---
 
+> **Core idea:** ThePlatform's ownership model had to distinguish moved, borrowed, and mixed values because language-level reuse and runtime-level memory safety were the same problem.
+
 The runtime knows whether a reaction's bound values are moved, borrowed, or mixed. The surface does not yet ask the user. That is the gap.
 
 In `kernel/o/reactor/src/reaction.rs` the discipline is a field:

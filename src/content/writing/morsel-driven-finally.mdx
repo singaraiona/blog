@@ -1,6 +1,6 @@
 ---
 title: morsel-driven, finally
-summary: rayforce2 with the teide pipeline running underneath the rayfall vm. three things change. one of them surprised me.
+summary: rayforce2 with the teide pipeline underneath rayfall. morsels make cancellation, fusion, and profiling structurally simpler.
 publishedAt: 2026-03-12
 tags: [rayforce2, performance, execution]
 project: rayforce2
@@ -9,7 +9,9 @@ workPeriod: "Feb-Mar 2026"
 perspective: note
 ---
 
-In rayforce, cancelling a long query was a sketchy thread-state machine. In rayforce2 it is a five-line check. The reason is morsels.
+> **Core idea:** morsel-driven execution moved rayforce2 from isolated vector kernels to schedulable, cache-sized units of query work.
+
+In rayforce, cancelling a long query depended on a fragile thread-state machine. In rayforce2 it is a five-line check. The reason is morsels.
 
 A morsel is a slice of a column - 1024 elements, fixed - and every kernel takes morsels in and produces morsels out. There is no scalar fallback path; the partial last morsel is just its own morsel with fewer elements. The pipeline is one chain of morsels long.
 

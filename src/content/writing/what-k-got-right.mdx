@@ -1,6 +1,6 @@
 ---
 title: what k got right
-summary: three months in. why a half-century-old idea still embarrasses the systems that came after it.
+summary: three months in. why arity-classed vector evaluation still gives modern systems a useful design challenge.
 publishedAt: 2016-06-22
 tags: [theplatform, kdb, vectors, design]
 project: theplatform
@@ -8,6 +8,8 @@ step: theplatform-origin
 workPeriod: "2016"
 perspective: note
 ---
+
+> **Core idea:** K's lasting lesson was that arity and value shape can move complexity out of call sites and into a compact, optimizable runtime table.
 
 K's compactness is a software-engineering story, not a hardware one. The decisions live in the operator table, not at the call site.
 

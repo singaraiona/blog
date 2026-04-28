@@ -1,6 +1,6 @@
 ---
 title: starting hyperbridge
-summary: i needed an mpmc channel with async support. crossbeam covers the mpmc; nothing covers both. so i wrote my own.
+summary: i needed an mpmc channel with async support. hyperbridge separated that concurrency problem from theplatform.
 publishedAt: 2021-11-17
 tags: [hyperbridge, rust, concurrency]
 project: hyperbridge
@@ -9,8 +9,10 @@ workPeriod: "Nov 2021"
 perspective: milestone
 ---
 
-crossbeam-channel covers MPMC unbounded but has no async surface. Tokio's `mpsc` is async but single-consumer. Flume sits in between and worked on benches I did not believe. The crate I needed for theplatform is the one nobody had written, so I wrote it.
+> **Core idea:** Hyperbridge isolated the concurrency questions from ThePlatform so channel fairness, wakeups, and close semantics could be tested independently.
+
+crossbeam-channel covers MPMC unbounded but has no async surface. Tokio's `mpsc` is async but single-consumer. Flume sits in between but did not give me the confidence I needed for ThePlatform's workload. The missing shape was an MPMC channel with an async surface and close semantics I could reason about directly.
 
 Hyperbridge is what came out of the weekend. It is on crates.io as of today, version 0.1.0, with the benchmarks committed alongside the implementation - if you do not believe the numbers you can run them. Other Rust projects of mine ended up wanting the same gap closed, which is why it is its own crate and not a module inside theplatform: the channel does not need to know what is using it.
 
-The thing crossbeam does not give me, that I want, is the futures Sink/Stream surface. The path of least resistance for that turned out to be a separate crate rather than a fork. Inspired by crossbeam, not a reimplementation of it.
+The crossbeam surface I wanted to preserve was the simple synchronous MPMC discipline. The extra requirement was a futures `Sink`/`Stream` surface. The path of least resistance turned out to be a separate crate rather than a fork: inspired by crossbeam, not a reimplementation of it.

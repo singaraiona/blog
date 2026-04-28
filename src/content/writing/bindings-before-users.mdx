@@ -9,9 +9,11 @@ workPeriod: "2025"
 perspective: note
 ---
 
+> **Core idea:** a Python binding was used as an API-design instrument, forcing the C surface to become coherent before external users depended on it.
+
 The repo is still private. I am writing the Python binding anyway.
 
-This sounds backwards. It is not. Writing a binding before there are users is the cheapest way to find out which parts of the public API are wrong. The C API is the whole interface, and the C API is currently shaped like the internals because nobody has had to use it from outside. The Python binding is the first outside.
+This is intentionally early. Writing a binding before there are users is the cheapest way to find out which parts of the public API are wrong. The C API is the whole interface, and the C API is currently shaped like the internals because nobody has had to use it from outside. The Python binding is the first outside.
 
 I am writing it as an ORM, not a function-by-function wrapper. That is also a deliberate choice. A wrapper exposes the C calls and lets the user assemble queries in Python; an ORM exposes objects and methods and converts them to queries. The wrapper shape would have been faster to build and would have looked, from inside the language, like Python code wandering through a foreign API. The ORM forces me to answer "what is this database, in idiomatic Python", and the answer is a useful constraint on the C API itself.
 

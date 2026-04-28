@@ -9,6 +9,8 @@ workPeriod: "2023"
 perspective: note
 ---
 
+> **Core idea:** the Rust workspace was split by semantic arity because that made the build graph match the language dispatch graph.
+
 The workspace is one crate per arity class - `monad`, `dyad1..dyad4`, `triad`, `tetrad1..tetrad3`, plus the reactor and parser registrations - because that is the structure the language already had. The workspace is just being honest about it.
 
 The non-obvious win is in monomorphisation. Generic kernels are instantiated once per element type per arity, in their own crate, and the resulting code lives in one object file. Without arity-sharding, the same generic instantiation appears in every crate that calls into a primitive, the linker does what it can about the duplicates, and it never does enough. By cutting the workspace along the same line the dispatch already cuts, the duplication never happens.

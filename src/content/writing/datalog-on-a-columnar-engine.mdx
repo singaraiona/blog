@@ -9,10 +9,12 @@ workPeriod: "Apr 2026"
 perspective: milestone
 ---
 
+> **Core idea:** Datalog fit rayforce2 because recursive rule evaluation could reuse the same columnar DAG, morsel pipeline, and graph storage already built for analytical queries.
+
 Datalog landed in rayforce2 this week, and the only reason it is small to me is that the engine was already most of what Datalog needs. The payoff is a coincidence.
 
 The morsel pipeline, the DAG optimiser, and the CSR graph columns were each built for unrelated reasons - cancellation, predicate pushdown, graph traversal. Datalog walks in and finds them all useful. Semi-naive evaluation maps onto morsel-driven execution naturally because the working set of the previous iteration is exactly a morsel-shaped column. The DAG optimiser fuses rule bodies. CSR storage makes recursive joins fast. The whole thing comes out as one new opcode (`OP_ANTIJOIN` against the prior iteration's results) and a fixpoint loop around the DAG.
 
-I planned the merge to get the language and the engine into one place. I did not plan for the place also being the right shape for a third paradigm. That is the kind of payoff you cannot promise in advance and cannot fake when it shows up. The honest thing to write down today is that I got lucky on the same architecture twice.
+I planned the merge to get the language and the engine into one place. I did not plan for the place also being the right shape for a third paradigm. That is the kind of architectural payoff you cannot promise in advance and cannot fake when it shows up. The honest thing to write down today is that the same structural choice paid off twice.
 
 The Rayfall surface is the obvious K-and-Lisp shape - `(rule ...)`, `(query db (find ?x ?y) (where ...))` - and lives next to one example in `examples/rfl/datalog.rfl`. The implementation behind it is around four thousand lines of C. Most of the work was already done.

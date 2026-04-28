@@ -9,8 +9,10 @@ workPeriod: "Mar 2016"
 perspective: log
 ---
 
-Today I started something. Working name: "the platform". The premise: vector evaluation, join-calculus, embedded grammars - three ideas from three different traditions - put into one runtime where they stop being separate ideas. They are all forms of the same dispatch, if you squint.
+> **Core idea:** ThePlatform began from a unification thesis: vector evaluation, join-calculus reactions, and embedded grammars should be runtime features of one system.
+
+Today I started the repository. Working name: "ThePlatform". The premise: vector evaluation, join-calculus, embedded grammars - three ideas from three different traditions - put into one runtime where they stop being separate ideas. They are all forms of the same dispatch when the runtime is designed around judgments.
 
 I do not want to compete with kdb+ on its own ground. I want a runtime where a vector op, a reaction body, and a parser rule pass through the same dispatch table and the same scheduler. The unification is the conviction. Everything else - which language to write it in (Rust), what shape the data has (columnar from the first byte), how concurrency is exposed (transaction-shaped, not thread-shaped) - is a consequence I will defend as the implementation forces decisions.
 
-Whether that conviction survives the next year of writing C-grade Rust we will see. For now, a repo, a name, and a list of things to delete from my head.
+Whether that conviction survives the next year of implementation work is the test. For now, the repository has a name and a thesis precise enough to argue with.
