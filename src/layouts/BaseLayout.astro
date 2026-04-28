@@ -31,6 +31,57 @@ const siteName = "anton kundenko";
 const fullTitle = title ? `${title} · anton kundenko` : "anton kundenko";
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 const og = ogImage ?? new URL("/avatar.png", Astro.site).toString();
+
+const siteOrigin = Astro.site?.origin ?? "https://anton.kundenko.dev";
+
+const sitewideSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${siteOrigin}/#person`,
+      name: "Anton Kundenko",
+      url: `${siteOrigin}/`,
+      email: "anton.kundenko@gmail.com",
+      jobTitle: "Principal Systems Engineer",
+      description:
+        "Architect of high-performance database systems with 18+ years of experience. Creator of RayforceDB, TeideDB, and the Rayfall language.",
+      knowsAbout: [
+        "columnar databases",
+        "SIMD vectorization",
+        "query engine design",
+        "programming language implementation",
+        "systems programming in C",
+        "vector databases",
+        "time-series systems",
+      ],
+      sameAs: [
+        "https://github.com/singaraiona",
+        "https://www.linkedin.com/in/anton-kundenko-a22a3667/",
+        "https://www.reddit.com/user/het0ku/",
+      ],
+      image: {
+        "@type": "ImageObject",
+        url: `${siteOrigin}/avatar.png`,
+      },
+      worksFor: {
+        "@type": "Organization",
+        name: "Lynx Trading Technologies",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteOrigin}/#website`,
+      url: `${siteOrigin}/`,
+      name: siteName,
+      description:
+        "Personal blog and portfolio of Anton Kundenko, systems engineer building high-performance database systems.",
+      author: { "@id": `${siteOrigin}/#person` },
+      publisher: { "@id": `${siteOrigin}/#person` },
+      inLanguage: "en",
+    },
+  ],
+});
 ---
 
 <!doctype html>
@@ -38,6 +89,7 @@ const og = ogImage ?? new URL("/avatar.png", Astro.site).toString();
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
@@ -51,6 +103,9 @@ const og = ogImage ?? new URL("/avatar.png", Astro.site).toString();
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:image" content={og} />
+    {type === "article" && (
+      <meta property="article:author" content="Anton Kundenko" />
+    )}
     {publishedAt && (
       <meta property="article:published_time" content={publishedAt.toISOString()} />
     )}
@@ -69,6 +124,8 @@ const og = ogImage ?? new URL("/avatar.png", Astro.site).toString();
       title={`${siteName} - writing`}
       href="/rss.xml"
     />
+
+    <script type="application/ld+json" is:inline set:html={sitewideSchema} />
 
     <meta name="generator" content={Astro.generator} />
     <ClientRouter />

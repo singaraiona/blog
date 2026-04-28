@@ -39,8 +39,53 @@ const {
 const fmt = (d: Date) =>
   d.toISOString().slice(0, 10);
 
-// slug accepted for forward-compat (per-post OG image will be added later)
-void slug;
+const siteOrigin = Astro.site?.origin ?? "https://anton.kundenko.dev";
+const postUrl = `${siteOrigin}/writing/${slug}/`;
+
+const blogPostingSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "@id": postUrl,
+  headline: title,
+  description: summary,
+  url: postUrl,
+  datePublished: publishedAt.toISOString(),
+  dateModified: (updatedAt ?? publishedAt).toISOString(),
+  inLanguage: "en",
+  keywords: tags.join(", "),
+  author: {
+    "@type": "Person",
+    "@id": `${siteOrigin}/#person`,
+    name: "Anton Kundenko",
+    url: `${siteOrigin}/`,
+  },
+  publisher: {
+    "@type": "Person",
+    "@id": `${siteOrigin}/#person`,
+    name: "Anton Kundenko",
+  },
+  mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
+  isPartOf: {
+    "@type": "Blog",
+    "@id": `${siteOrigin}/writing`,
+    name: "Anton Kundenko - Writing",
+  },
+});
+
+const breadcrumbSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: `${siteOrigin}/` },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Writing",
+      item: `${siteOrigin}/writing`,
+    },
+    { "@type": "ListItem", position: 3, name: title, item: postUrl },
+  ],
+});
 ---
 
 <BaseLayout
@@ -50,11 +95,16 @@ void slug;
   publishedAt={publishedAt}
   updatedAt={updatedAt}
 >
+  <script type="application/ld+json" is:inline set:html={blogPostingSchema} />
+  <script type="application/ld+json" is:inline set:html={breadcrumbSchema} />
+
   <article class="post fade-up">
     <header class="post-header">
       <a href="/writing" class="back">← writing</a>
       <h1 class="post-title">{title}</h1>
-      <p class="post-summary">{summary}</p>
+      <p class="post-summary">
+        <span class="summary-label">summary:</span> {summary}
+      </p>
       <div class="post-context">
         <span class="chip">{PROJECT_LABELS[project]}</span>
         <span class="chip">{STEP_INFO[step].title}</span>
@@ -85,7 +135,21 @@ void slug;
       <slot />
     </div>
     <footer class="post-footer">
-      <a href="/writing" class="back">← back to writing</a>
+      <p class="byline">
+        by <a href="/about" rel="author">Anton Kundenko</a>
+        <span class="dot">·</span>
+        <span class="byline-role">principal systems engineer</span>
+      </p>
+      <p class="byline-meta">
+        author of RayforceDB, TeideDB, and the Rayfall language.
+      </p>
+      <p class="byline-links">
+        <a href="/writing">more writing</a>
+        <span class="dot">·</span>
+        <a href="/rss.xml">rss feed</a>
+        <span class="dot">·</span>
+        <a href="/about">about</a>
+      </p>
     </footer>
   </article>
 
@@ -120,6 +184,14 @@ void slug;
       font-size: 1rem;
       margin: 0 0 1rem;
       line-height: 1.5;
+    }
+    .summary-label {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--color-accent-dim);
+      letter-spacing: 0.02em;
+      margin-right: 0.35rem;
+      text-transform: lowercase;
     }
     .post-context {
       display: flex;
@@ -156,6 +228,43 @@ void slug;
       margin-top: 4rem;
       padding-top: 1.5rem;
       border-top: 1px solid var(--color-border);
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      color: var(--color-muted);
+    }
+    .post-footer .byline {
+      margin: 0 0 0.4rem;
+      color: var(--color-fg);
+    }
+    .post-footer .byline a {
+      color: var(--color-fg);
+    }
+    .post-footer .byline a:hover {
+      color: var(--color-accent);
+    }
+    .post-footer .byline-role {
+      color: var(--color-muted);
+    }
+    .post-footer .byline-meta {
+      margin: 0 0 0.6rem;
+      color: var(--color-muted);
+    }
+    .post-footer .byline-links {
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      color: var(--color-muted);
+    }
+    .post-footer .byline-links a {
+      color: var(--color-muted);
+    }
+    .post-footer .byline-links a:hover {
+      color: var(--color-accent);
+    }
+    .post-footer .dot {
+      color: var(--color-faint);
     }
   </style>
 </BaseLayout>
