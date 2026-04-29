@@ -1,0 +1,18 @@
+---
+title: the v2 rollup landed
+summary: two and a half years of v1 hardening and six months of v2 engine work, squashed into one merge commit on master. no more v1 vs v2. just rayforce.
+publishedAt: 2026-04-29
+tags: [rayforce, rayforce2, milestone, architecture]
+project: rayforce2
+step: rayforce2-merge
+workPeriod: "Apr 2026"
+perspective: milestone
+---
+
+> **Core idea:** the v2 work shipped as one merge commit because piecemeal landings would have produced thirty intermediate states that neither compiled nor told a coherent story.
+
+Today the rayforce2 work landed in the public rayforce repo as a single rollup commit. Two and a half years of v1 hardening, six months of v2 engine work in a parallel repo, all collapsed into one merge. From master forward there is no v1 and no v2. There is just rayforce.
+
+The rollup form was a deliberate choice. The v2 engine touches the optimizer, the executor, the heap, the type system, and the C API at once - they were redesigned together because they had to be. Splitting the merge into thirty PRs would have produced thirty intermediate states that either did not compile or ran on a half-rebuilt pipeline. Reviewers would have lost the through-line. Bisecting a future regression would have landed inside a partially merged engine. One commit hides nothing; it just admits that the integration boundary is the whole system.
+
+After the rollup the cleanup begins. The first commits on top are already small and local: stale URL renames, vendor names scrubbed from the docs, a self-hosted font pipeline, a sitemap, foldable sidebars on the docs site. The boring work resumes. What changed today is structural. The engine is in.
