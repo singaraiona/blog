@@ -1,0 +1,19 @@
+---
+title: introducing raysense
+summary: a small tool that watches the architectural drift coding agents leave behind, and feeds the score back into the loop before the next edit.
+publishedAt: 2026-05-01
+tags: [raysense, rayforce, agents, architecture]
+project: rayforce2
+step: rayforce2-merge
+workPeriod: "May 2026"
+perspective: note
+draft: false
+---
+
+> **Core idea:** agents work at machine speed; the architectural drift they leave behind is invisible to diffs. raysense scores the structure and shows it back to the agent before the next edit.
+
+A coding agent reads one file at a time. It does not see the shape of the project: which modules are tangled, which files are load-bearing, where complexity is concentrated, what changed together every commit last quarter. Reviewers do not see it either. By the time a structural regression is obvious in production, the cost of unwinding it has compounded. Cycles, change-coupling pairs, files with no nearby tests - the signals are all there in the repository; nothing on the team is looking at them on the cadence the agent commits.
+
+raysense is one number on top of those signals. Six A-F dimensions - modularity, acyclicity, depth, equality, redundancy, structural uniformity - computed from the dependency graph and commit history, distilled to a 0-100 score. The score is ungameable. You cannot trick it by adding tests or shuffling files; the graph either has cycles or it does not. The same scan is materialized as splayed columnar tables, so an agent asking the same shape question a hundred times in one session pays microseconds, not re-scans.
+
+Use is short. `cargo install raysense`, then `raysense .` for a one-off report. A check mode exits non-zero on rule violations for CI; a watch mode reprints on a loop; a UI mode opens a live treemap dashboard in the browser; an MCP mode runs the tool as a stdio server so a coding agent can call it directly. It ships as a Claude Code plugin with phase-scoped skills: scan and baseline at session start, blast radius before edits, regression diff after. The whole thing links the rayforce runtime statically, which is what makes "ask the same question a hundred times during a coding session" cost a hundred microseconds instead of a hundred re-scans.
